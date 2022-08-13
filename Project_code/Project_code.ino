@@ -178,7 +178,7 @@ void LED_ON(int LED){
 }
 
 void init_arduino(){
-  Serial.begin(9600);
+  Serial.begin(115200);
   myservo_1.attach(2); //servo pin
   myservo_2.attach(3);
   lcd.begin();
