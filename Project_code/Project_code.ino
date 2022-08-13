@@ -4,6 +4,8 @@
 #include <Servo.h>
 //variables
 char userInput;
+int control_type; //manual control, 1 is auto
+int pre_control_type = 1; //previous control type
 Servo myservo_1; //servo objects
 Servo myservo_2;
 LiquidCrystal_I2C lcd(0x27,16,2);
@@ -35,26 +37,69 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  //reads for data, this will be the control type
 if(Serial.available()>0){
-  userInput = Serial.read();
+  control_type = Serial.read();
 
-  if(userInput == "a"){
-    //what happens when open gate 1 is pressed
+  //manual control
+  while(control_type == 0){ 
+    if(Serial.available()>0){
+      userInput = Serial.read();
+      if(userInput == "a"){
+        //what happens when open gate 1 is pressed
+      }
+      if(userInput == "b"){
+        //what happens when close gate 1 is pressed
+      }
+      if(userInput == "c"){
+        //what happens when open gate 2 is pressed
+      }
+      if(userInput == "d"){
+        //what happens when close gate 2 is pressed
+      }
+      if(userInput == "e"){
+        //what happens when user asks for parking spot available
+      }
+      if(userInput == "f"){
+        //what happens when automatic control is selected
+        //lines of code
+        pre_control_type = 0;
+        control_type = 2; //exit manual control
+      }
+      else{
+        //do nothing if there is no new user input
+      }
+    }
   }
-  if(userInput == "b"){
-    //what happens when close gate 1 is pressed
+
+  //automatic control
+  while(control_type == 1){ 
+   if(Serial.available()>0){
+    userInput = Serial.read();
+    if(userInput == "g"){
+    pre_control_type = 1;
+    control_type = 2; //exit automatic
+    }
+    else{
+      /*nothing happens if any other control is pressed during
+      auto control*/
+    }
+   }
+   else{
+    //normal automatic control
+   }
   }
-  if(userInput == "c"){
-    //what happens when open gate 2 is pressed
-  }
-  if(userInput == "d"){
-    //what happens when close gate 2 is pressed
-  }
-  if(userInput == "e"){
-    //what happens when user asks for parking spot available
+
+
+  //change over
+  while(control_type == 2){
+    /*exiting one contro type and entering another
+    turn off led's tell drivers to wait, do a countdown
+    but first check i there are any vehicles blocking the exit or entry point*/
   }
 }
 }
+
 
 //functions
 //get ultrasonic reading
