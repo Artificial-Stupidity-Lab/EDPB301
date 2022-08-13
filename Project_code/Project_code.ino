@@ -6,6 +6,13 @@
 char userInput;
 int control_type; //manual control, 1 is auto
 int pre_control_type = 1; //previous control type
+int gate_one_state = 0; //closed at 0
+int gate_two_state = 0; //closed at 0
+int obstacle_one_state; //obtacle at gate 1
+int obstacle_two_state; //obtacle at gate 1
+int bay_1_state; //empty parking slot
+int bay_2_state;
+int bay_3_state;
 Servo myservo_1; //servo objects
 Servo myservo_2;
 LiquidCrystal_I2C lcd(0x27,16,2);
