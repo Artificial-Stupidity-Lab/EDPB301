@@ -37,11 +37,16 @@ btn_gate2_close = tk.Button(root, text="Close Exit", bg="red")
 btn_gate2_close['font'] = myFont1
 btn_gate2_close.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
 
+#parking spots button
+btn_available_parking = tk.Button(root, text="Parking Availabilty", bg="yellow")
+btn_available_parking["font"] = myFont1
+btn_available_parking.place(relx=0,rely=0.6,relwidth=1,relheight=0.15)
+
 #control type
 control_type = IntVar()
 btn_control_type = tk.Checkbutton(root, variable = control_type, text = "Automatic Control", bg="#80c1ff")
 btn_control_type['font'] = myFont1
-btn_control_type.place(relx=0, rely=0.6, relwidth=1, relheight=0.2)
+btn_control_type.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
 
 root.geometry("500x500")
 root.mainloop()
