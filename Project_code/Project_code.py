@@ -14,9 +14,9 @@ root.title("Control Centre")
 canvas = tk.Canvas(root, height=500, width=500)
 #frame = tk.Frame(root, bg="#1bcfa8")
 #frame.place(relwidth=1,relheight=1)
-background_image = tk.PhotoImage(file="dut_logo.png")
+background_image = tk.PhotoImage(file="C:/Users/mpilo/OneDrive/Documents/GitHub/EDPB301/Project_code/logo.jpg")
 background_label = tk.Label(root,image=background_image)
-background_label.place(x=0,y=0,relheight=1,relwidth=1) 
+background_label.place(relwidth=1,relheight=1) 
 
 #open entrance button
 btn_gate1_open = tk.Button(root, text="Open Entrance", bg="lime")
