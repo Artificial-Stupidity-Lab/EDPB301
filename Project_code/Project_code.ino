@@ -17,7 +17,7 @@ Servo myservo_1; //servo objects
 Servo myservo_2;
 LiquidCrystal_I2C lcd(0x27,16,2);
 //gate ultrasonic variables
-const int trig_1 = 4; //trigger pin of sensor 1
+const int trig_1 = 4; //trigger pin of sensor 1(entrance)
 const int echo_1 = 5; //echo pin of sensor 1
 const int trig_2 = 6; //trigger pin of sensor 1
 const int echo_2 = 7; //echo pin of sensor 1
@@ -30,12 +30,31 @@ const int trig_5 = 26; //trigger pin of sensor 1
 const int echo_5 = 27; //echo pin of sensor 1
 const int trig_6 = 28; //trigger pin of sensor 1
 const int echo_6 = 29; //echo pin of sensor 1
+
+const int critical_height; //critical height of parking bays
+const int critical_dis_1; //distance to entrance
+const int critical_dis_2; //distnace to exit
+
 //led_1 variables
 const int green_led_1 = 8;
 const int red_led_1 = 9;
 //led_2 variables
 const int green_led_2 = 10;
 const int red_led_2 = 11;
+//leds at the parking bays
+//3
+const int green_led_3 = 30;
+const int red_led_3 = 31;
+//4
+const int green_led_4 = 32;
+const int red_led_4 = 33;
+//5
+const int green_led_5 = 34;
+const int red_led_5 = 35;
+//6
+const int green_led_6 = 36;
+const int red_led_6 = 37;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -153,11 +172,20 @@ void Close_Gates(){
 ///////////led functions/////////////
 //LED ALL OFF
 void LED_ALL_OFF_0(){
-  //truns off all leds
+  //truns off all leds at the gates 
   digitalWrite(green_led_1,LOW);
   digitalWrite(red_led_1,LOW);
   digitalWrite(green_led_2,LOW);
   digitalWrite(red_led_2,LOW);
+}
+void LED_ALL_OFF_00(){
+  //truning off all parking bay leds
+   char* green_leds[] = {"green_led_3", "green_led_4","green_led_5","green_led_6"};
+   char* red_led[] = {"red_led_3","red_led_4","red_led_5","red_led_6"};
+   for(int i=0; i<4; i++){
+    digitalWrite(green_leds[i],LOW);
+    digitalWrite(red_leds[i],LOW);
+   }
 }
 
 void LED_ALL_OFF_1(){
@@ -211,4 +239,50 @@ void init_arduino(){
   Close_Gates();
   
   
+}
+
+//check parking spots
+int parking_slots_check(){
+  LED_ALL_OFF_00();
+  int parking_slots;
+  float slot_3, slot_4, slot_5, slot_6;
+  int sum; //number of parking slots available
+  slot_3 = float gate_reading(int trig_3, int echo_3);
+  slot_4 = float gate_reading(int trig_4, int echo_4);
+  slot_5 = float gate_reading(int trig_5, int echo_5);
+  slot_6 = float gate_reading(int trig_6, int echo_6);
+   char* slots[] = {"slot_3", "slot_4", "slot_5", "slot_6"};
+   char* green_leds[] = {"green_led_3", "green_led_4","green_led_5","green_led_6"};
+   char* red_led[] = {"red_led_3","red_led_4","red_led_5","red_led_6"};
+  for(int i=0; i<4; i++){
+    if(slots[i] > critical_height){
+      sum+=1;
+      LED_ON(green_leds[i]);
+    }
+    else{
+      LED_ON(red_leds[i]);
+    }
+
+  }
+  return sum;
+}
+
+//checking for obstruction at gates
+//gate 1
+void gate_one_check(){
+  if(gate_reading(int trig_1, int echo_1)>critical_dis_1){
+    obstacle_one_state = 0; //no obstacle
+  }
+  else{
+    obstacle_one_state = 1;
+  }
+}
+//gate 2
+void gate_two_check(){
+  if(gate_reading(int trig_2, int echo_2)>critical_dis_2){
+    obstacle_two_state = 0; //no obstacle
+  }
+  else{
+    obstacle_two_state = 1;
+  }
 }
