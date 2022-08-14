@@ -6,7 +6,24 @@ import tkinter.font as font
 import time
 
 #variables
-#arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
+arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
+
+#communication function
+def listen():
+    while(arduino_data.inwaiting()==0):
+        pass
+    dataPacket = arduino_data.readline()
+    dataPacket=str(dataPacket, "utf-8")
+    dataPacket=int(dataPacket.strip("\r\n"))
+    return dataPacket
+
+def talk(data):
+    userInput = data+"\r"
+    arduino_data.write(userInput.encode())
+   
+
+
+
 
 #creating GUI
 root = Tk()
@@ -38,7 +55,7 @@ btn_gate2_close['font'] = myFont1
 btn_gate2_close.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
 
 #parking spots button
-btn_available_parking = tk.Button(root, text="Parking Availabilty", bg="yellow")
+btn_available_parking = tk.Button(root, text="Parking Availability", bg="yellow")
 btn_available_parking["font"] = myFont1
 btn_available_parking.place(relx=0,rely=0.6,relwidth=1,relheight=0.15)
 

@@ -73,6 +73,13 @@ if(Serial.available()>0){
       userInput = Serial.read();
       if(userInput == "a"){
         //what happens when open gate 1 is pressed
+        if(gate_one_state == 0){
+
+        }
+        else{
+          //if gate already open
+          Serial.println()
+        }
       }
       if(userInput == "b"){
         //what happens when close gate 1 is pressed
@@ -285,4 +292,18 @@ void gate_two_check(){
   else{
     obstacle_two_state = 1;
   }
+}
+
+//comm functions
+void talk(data){
+  Serial.println(data);
+  delay(500);
+}
+
+char listen(){
+  while(Serial.available()==0){
+    //do nothing while there is no data
+  }
+  userInput = Serial.readStringUntil("\r");
+  return userInput
 }
