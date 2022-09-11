@@ -29,10 +29,15 @@ myFont2 = font.Font(family='Helvetica', size=20, weight='bold')
 myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
 
 #GUI variables
+#objects list needs to be a tuple
+objectsList = ["Please Select Object To Track",
+                "a",
+                "b"
+                ]
 
 
 
-#function for clicked button
+#function for each button
 def get_battery(event): 
     print("\nEntering Battery Mode")
     #create mesage box
@@ -46,12 +51,12 @@ def surveillance_mode(event): #mode0
 def read_database(event):#mod1
     print("\nEntering Database Mode")
     mode1Win()
-    #create mesage box
+    #open data base
 
 def tracking_mode(event):#mode2
     print("\nEntering tracking Mode")
     mode2Win()
-    #create mesage box
+    #create a list of objects to track
 
 def defensive_mode(event):#mode3
     print("\nEntering defensive Mode")
@@ -67,13 +72,12 @@ def halt(event):#mode4
 def msg_box_battery():
     pass
     #create function that reads battery from tello drone
-    battery = tello.get_battery()
-    messagebox.showinfo("Battery Status", f"The Drone's Battery is {battery}% full")
+    #battery = tello.get_battery()
+    messagebox.showinfo("Battery Status", f"The Drone's Battery is Something% full")
 def halt_msg():
     #land()
-    pass
     messagebox.showinfo("Halt", f"Drone Operations have been halted")
-    tello.land()
+    #tello.land()
     
 
 #functions to write/read data file
@@ -91,12 +95,47 @@ def readDataFile():
     filename = "C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"
     fn.close()
 
+#general defesive mode function
+def defend():
+    pass
+    '''pick random value from 1st list
+    if value is from left to forward, pick a disntance
+    from the second list, if value is a flip do it only once
+    if spin, rotate 180 degrees
+    '''
+    randomMoves = [
+    "left", 
+    "right",
+    "up",
+    "down",
+    "back",
+    "forward",
+    "flipLeft",
+    "flipRight",
+    "flipBack",
+    "flipForward"
+    "spin"]
+    randomTime = [
+        20,
+        40,
+        60,
+        80,
+        100,
+        120,
+        140,
+        160,
+        200,
+    ]
+    
 
 
 
 
-#opening new windows for the each mode
-def mode0Win():
+
+
+
+#functions for different modes
+def mode0Win(): #surveillance
  
     top = Toplevel()
     top.title("DJI TELLO DRONE Control Centre")
@@ -107,7 +146,7 @@ def mode0Win():
     canvastop = tk.Canvas(top, height=500, width=500)
     frametop = tk.Frame(top, bg="#1bcfa8")
     frametop.place(relwidth=1,relheight=1)
-   #Objects
+   #mde 0 buttons (surveillance mode)
     btn_object = tk.Button(top, text="Survey Objects", bg="lime")
     btn_object['font'] = myFont2
     btn_object.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
@@ -145,25 +184,68 @@ def mode0Win():
 
     top.attributes("-fullscreen", True)
     top.mainloop()
-def mode1Win():
+def mode1Win(): #read database
     pass
     top = Toplevel()
     lb1 = Label(top, text="Mode 1").pack()
-def mode2Win():
-    pass
+def mode2Win(): #tracking
     top = Toplevel()
-    lb2 = Label(top, text="Mode 2").pack()
-def mode3Win():
+    top.title("Tracking Mode")
+#fucntion to destroy windows 
+    def home():
+        top.destroy()
+    #styling the entire GUI
+    canvastop = tk.Canvas(top, height=500, width=500)
+    frametop = tk.Frame(top, bg="#1bcfa8")
+    frametop.place(relwidth=1,relheight=1)
+   #select menu for objects to track
+    userObject = StringVar()
+    userObject.set("Please Select Object To Track")
+    objectsMenu = tk.OptionMenu(top, userObject, *objectsList)
+    objectsMenu['font'] = myFont2
+    objectsMenu.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
+    #halt tracking function
+    def haltTracking():
+        userObject.set("Please Select Object To Track")
+        messagebox.showinfo("Halt Tracking", f"Drone Is No loner Tracking Object Listed as PlaceHolder")
+
+    #Parking
+    btn_track = tk.Button(top, text="Click To Track", bg="yellow")
+    btn_track['font'] = myFont2
+    btn_track.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
+    #btn_database.bind("<Button-1>",read_database)
+
+    #Defensive
+    btn_defensive2 = tk.Button(top, text="Defensive", bg="#80c1ff")
+    btn_defensive2['font'] = myFont2
+    btn_defensive2.place(relx=0, rely=0.3, relwidth=1, relheight=0.2)
+    #btn_tracking.bind("<Button-1>",tracking_mode)
+
+    #home
+    btn_home = tk.Button(top, text="Main Menu", bg="violet", command=home)
+    btn_home["font"] = myFont2
+    btn_home.place(relx=0,rely=0.6,relwidth=1,relheight=0.15)
+    #btn_home.bind("<Button-1>",home)
+
+    #haltTracking
+    btn_haltTracking = tk.Button(top, text = "HALT TRACKING", bg="red", command=haltTracking)
+    btn_haltTracking['font'] = myFont2
+    btn_haltTracking.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
+    #btn_haltTracking.bind("<Button-1>",haltTracking)
+
+    top.attributes("-fullscreen", True)
+    top.mainloop()
+def mode3Win(): #defensive mode
     pass
     top = Toplevel()
     lb3 = Label(top, text="Mode 3").pack()
-def mode4Win():
+def mode4Win(): #halt
     pass
     top = Toplevel()
     lb4 = Label(top, text="Mode 4").pack()
 
 
-
+#buttons for different modes
 #Surveillance Mode
 btn_surveillance = tk.Button(root, text="Surveillance", bg="lime")
 btn_surveillance['font'] = myFont1
