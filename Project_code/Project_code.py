@@ -49,7 +49,17 @@ def openEntrance():
 def openExit():
     #tell arduino to open entrance
     messagebox.showinfo("Exit State", f"Exit is now open")
-
+#closing the gates
+def closeEntrance():
+    #tell arduino to close the gates
+    messagebox.showinfo("Entrance State",f"Entrance is now closing")
+    #ask arduino if entrance is closed if note loop 
+    #messagebox.showerror("Entrance State",f"The gate cannot close due to obstruction")
+def closeExit():
+    #tell arduino to close the gates
+    messagebox.showinfo("Exit State",f"Exit is now closing")
+    #ask arduino if entrance is closed if note loop 
+    #messagebox.showerror("Exit State",f"The gate cannot close due to obstruction")
 
 
 #creating GUI
@@ -68,7 +78,7 @@ btn_gate1_open = tk.Button(root, text="Open Entrance", bg="lime", command=openEn
 btn_gate1_open['font'] = myFont1
 btn_gate1_open.place(relx=0, rely=0, relwidth=0.5, relheight=0.15)
 #close entrance button
-btn_gate1_close = tk.Button(root, text="Close Entrance", bg="red")
+btn_gate1_close = tk.Button(root, text="Close Entrance", bg="red", command=closeEntrance)
 btn_gate1_close['font'] = myFont1
 btn_gate1_close.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.15)
 
@@ -77,7 +87,7 @@ btn_gate2_open = tk.Button(root, text="Open Exit", bg="lime", command=openExit)
 btn_gate2_open['font'] = myFont1
 btn_gate2_open.place(relx=0, rely=0.25, relwidth=0.5, relheight=0.15)
 #close exit button
-btn_gate2_close = tk.Button(root, text="Close Exit", bg="red")
+btn_gate2_close = tk.Button(root, text="Close Exit", bg="red", command=closeExit)
 btn_gate2_close['font'] = myFont1
 btn_gate2_close.place(relx=0.5, rely=0.25, relwidth=0.5, relheight=0.15)
 
