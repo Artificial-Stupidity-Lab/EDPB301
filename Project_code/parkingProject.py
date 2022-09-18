@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 import tkinter.font as font
 import time
-'''
+
 #variables
 arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
 
@@ -20,15 +20,15 @@ def listen():
 def talk(data):
     userInput = data+"\r"
     arduino_data.write(userInput.encode())
- '''  
+ 
 
 #functions
 #parking spaces availabilty
 def parkingSpaces():
-    #ask arduino how many spaces are available
-    #parkingSpaces = 
-    messagebox.showinfo("Parking Availabilty", f"There are PLACEHOLDER spaces available")
-    #also send to arduino
+    talk(parkingSlots)
+    parkingSpaces = listen()
+    messagebox.showinfo("Parking Availabilty", f"There are {parkingSpaces} spaces available")
+
 
 #halting the system
 def halt():
@@ -43,13 +43,21 @@ def automaticMode():
     messagebox.showinfo("MODE","System is now in automatic mode")
 
 #opening the gates
-def openEntrance():
-    #tell arduino to open the gate
+def openEntranceManual():
+    talk(openEntrance)
     messagebox.showinfo("Entrance State",f"Entrance is now open")
-def openExit():
+def openExitManual():
     #tell arduino to open entrance
+    talk(openExit)
     messagebox.showinfo("Exit State", f"Exit is now open")
 
+#closing the gates
+def closeEntranceManual():
+    talk(closeEntrance)
+    messagebox.showinfo("Entrance State",f"Entrance is now closed")
+def closeExitManual():
+    talk(closeExit)
+    messagebox.showinfo("Entrance State", f"Exit is now closed")
 
 
 #creating GUI

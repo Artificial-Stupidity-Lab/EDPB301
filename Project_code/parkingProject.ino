@@ -3,7 +3,7 @@
 #include <LiquidCrystal_I2C.h> /*LCD*/
 #include <Servo.h>
 //variables
-char userInput;
+char userInput[15];
 int control_type; //manual control, 1 is auto
 int pre_control_type = 1; //previous control type
 int gate_one_state = 0; //closed at 0
@@ -69,66 +69,18 @@ if(Serial.available()>0){
 
   //manual control
   while(control_type == 0){ 
-    if(Serial.available()>0){
-      userInput = Serial.read();
-      if(userInput == "a"){
-        //what happens when open gate 1 is pressed
-        if(gate_one_state == 0){
-
-        }
-        else{
-          //if gate already open
-          Serial.println()
-        }
-      }
-      if(userInput == "b"){
-        //what happens when close gate 1 is pressed
-      }
-      if(userInput == "c"){
-        //what happens when open gate 2 is pressed
-      }
-      if(userInput == "d"){
-        //what happens when close gate 2 is pressed
-      }
-      if(userInput == "e"){
-        //what happens when user asks for parking spot available
-      }
-      if(userInput == "f"){
-        //what happens when automatic control is selected
-        //lines of code
-        pre_control_type = 0;
-        control_type = 2; //exit manual control
-      }
-      else{
-        //do nothing if there is no new user input
-      }
-    }
+    manualControl();
   }
 
   //automatic control
   while(control_type == 1){ 
-   if(Serial.available()>0){
-    userInput = Serial.read();
-    if(userInput == "g"){
-    pre_control_type = 1;
-    control_type = 2; //exit automatic
-    }
-    else{
-      /*nothing happens if any other control is pressed during
-      auto control*/
-    }
-   }
-   else{
-    //normal automatic control
-   }
+   automaticControl();
   }
 
 
   //change over
   while(control_type == 2){
-    /*exiting one contro type and entering another
-    turn off led's tell drivers to wait, do a countdown
-    but first check i there are any vehicles blocking the exit or entry point*/
+    changeOver();
   }
 }
 }
@@ -154,26 +106,40 @@ float gate_reading(int trigPin, int echoPin){
 //BoomGate Open
 void Gate_Open_1(){
   myservo_1.write(90);
+  LED_OFF(red_led_1);
+  LED_ON(green_led_1);
+  LCD_print_doubleNoTime("Gate is Open", "You May Enter");
+  gate_one_state = 1;
 }
 
 //BooGate Close
 void Gate_Close_1(){
   myservo_1.write(0);
+  LED_OFF(green_led_1);
+  LED_ON(red_led_1);
+  LCD_print_doubleNoTime("Gate Closed","No ENTRY");
+  gate_one_state = 0;
 }
 
 void Gate_Open_2(){
   myservo_2.write(90);
+  LED_OFF(red_led_2);
+  LED_ON(green_led_2);
+  gate_two_state = 1;
 }
 
 //BooGate Close
 void Gate_Close_2(){
   myservo_2.write(0);
+  LED_OFF(green_led_2);
+  LED_ON(red_led_2);
+  gate_two_state = 0;
 }
 
 //close both gates
 void Close_Gates(){
   Gate_close_1();
-  Gate_Close_2():
+  Gate_Close_2();
 }
 
 ///////////led functions/////////////
@@ -217,6 +183,10 @@ void LED_REDS_ON(){
 //LED ON
 void LED_ON(int LED){
   digitalWrite(LED,HIGH);
+}
+//LED OFF
+void LED_OFF(int LED){
+  digitalWrite(LED,LOW);
 }
 
 void init_arduino(){
@@ -300,10 +270,203 @@ void talk(data){
   delay(500);
 }
 
-char listen(){
+listen(){
   while(Serial.available()==0){
     //do nothing while there is no data
   }
   userInput = Serial.readStringUntil("\r");
-  return userInput
+  
+}
+////////////LCD functions/////////////
+//LCD 2 lines Write Function with time
+void LCD_print_doubleLine(char line_1[16], char line_2[16], int disp_time){
+ lcd.clear();
+ lcd.setCursor(0,0);
+ lcd.print(line_1);
+ lcd.setCursor(0,1);
+ lcd.print(line_2);
+ delay(disp_time);
+ lcd.clear(); 
+}
+
+//print two lines on LCD with no time   
+void LCD_print_doubleNoTime(char line_1[16], char line_2[16]){
+   lcd.clear();
+   lcd.setCursor(0,0);
+   lcd.print(line_1);
+   lcd.setCursor(0,1);
+   lcd.print(line_2);
+}
+
+//LCD counter
+void LCD_print_doubleCount(char line_1[16], char line_2[10], char seconds[2], int disp_time){
+ lcd.clear();
+ lcd.setCursor(0,0);
+ lcd.print(line_1);
+ lcd.setCursor(0,1);
+ lcd.print(seconds);
+ lcd.setCursor(3,1);
+ lcd.print(line_2);
+ delay(disp_time);
+ lcd.clear(); 
+}
+
+//lcd counter user function
+void LCD_with_counter(char line_1[16], char line_2[10], int start_time, int disp_time){
+  int i = 0;
+  for(i=start_time;i>0;i--){
+    char j[3];
+    String str;
+    str=String(i);
+    str.toCharArray(j,3);
+        LCD_print_doubleCount(line_1, line_2, j, disp_time);
+        }
+}
+
+//control functions
+void automaticControl(){
+  if(Serial.available()>0){
+    userInput = Serial.read();
+    if(userInput == "automaticToggle"){
+    pre_control_type = 1;
+    control_type = 2; //exit automatic
+    }
+    else{
+      /*nothing happens if any other control is pressed during
+      auto control*/
+    }
+   }
+   else{
+    //normal automatic control
+    gate_one_check();
+    if(obstacle_one_state==1){
+      if(gate_one_state==1){
+        //do nothing if the gate is already open
+        while(obstacle_one_state==1){
+          gate_one_check();
+        }
+
+      }
+      else{
+        if(parking_slots_check()==0){
+          //what to do if there is a car waiting and there are no spaces available
+          LCD_print_doubleNoTime("No Parking","Available");
+          LED_ALL_OFF_1();
+          LED_ON(red_led_1);
+        }
+        else{
+          //what to do if there is a acr waiting and there are spaces available
+          Gate_Open_1();
+          LCD_print_doubleNoTime("You May Enter", "Welcome");
+          gate_one_check();
+          while(obstacle_one_state==1){
+            //wait here while there is an obstacle at gate 1
+          }
+        }
+      }
+    }
+    gate_one_check();
+    if(obstacle_one_state==0){
+      //if there are no obstacles at gate one
+      if(gate_one_state==1){
+        //gate is open, but no obstacles
+        LED_ALL_OFF_1();
+        LED_ON(red_led_1);
+        LCD_print_doubleCount("No Entry","Closing",5,1000);
+        Gate_Close_1();
+        LCD_print_doubleNoTime("No Entry", "Please Wait");
+      }
+      else{
+        //if there is no obstacle and gate is closed
+        LED_ALL_OFF_1();
+        LED_ON(red_led_1);
+        LCD_print_doubleLine("No Cars Found", "At this gate",2000);
+        LCD_print_doubleNoTime("No Entry", "Please Wait");
+      }
+    }
+    gate_two_check();
+    while(obstacle_two_state==1){
+      if(gate_two_state==1){
+        //do nothing if the gate is already open
+        if(gate_two_state==1){
+        //do nothing if the gate is already open
+        while(obstacle_two_state==1){
+          gate_two_check();
+        }
+      }
+      }
+      else{
+        //if there is a car wanting to leave and the gate is closed
+        Gate_Open_2();
+      }
+    }
+    gate_two_check();
+    if(obstacle_two_state==0){
+      //if there are no obstacles at gate one
+      if(gate_two_state==1){
+        //gate is open, but no obstacles
+        LED_ALL_OFF_2();
+        LED_ON(red_led_2);
+        delay(2000);
+        Gate_Close_2();
+      }
+      else{
+        //if there is no obstacle and gate is closed
+        LED_ALL_OFF_2();
+        LED_ON(red_led_2);
+      }
+    }
+   }
+}
+
+//manual function
+void manualControl(){
+  if(Serial.available()>0){
+      userInput = Serial.read();
+      if(userInput == "openEntrance"){
+        //what happens when open gate 1 is pressed
+        Gate_Open_1();
+      }
+      if(userInput == "closeEntrance"){
+        //what happens when close gate 1 is pressed
+        Gate_Close_1();
+      }
+      if(userInput == "OpenExit"){
+        //what happens when open gate 2 is pressed
+        Gate_Open_2();
+      }
+      if(userInput == "closeExit"){
+        //what happens when close gate 2 is pressed
+        Gate_Close_2();
+      }
+      if(userInput == "parkingSpots"){
+        //what happens when user asks for parking spot available
+        parkingSlots = parking_slots_check();
+        talk(parkingSlots);
+      }
+      if(userInput == "automaticToggle"){
+        //what happens when automatic control is selected
+        //lines of code
+        pre_control_type = 0;
+        control_type = 2; //exit manual control
+      }
+      else{
+        //do nothing if there is no new user input
+      }
+    }
+}
+
+//change over
+void changeOver(){
+  /*exiting one control type and entering another
+    turn off led's tell drivers to wait, do a countdown
+    but first check i there are any vehicles blocking the exit or entry point*/
+    if(pre_control_type==0){
+      control_type = 1;
+    }
+    if(pre_control_type==1){
+      control_type = 0;
+    }
+    LCD_with_counter("Do Not Enter","Closing",5,1000);
+    Close_Gates();
 }
