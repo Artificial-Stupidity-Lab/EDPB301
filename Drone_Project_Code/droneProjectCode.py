@@ -12,11 +12,31 @@ import tkinter.font as font
 from tkinter import filedialog as fd
 #Imaging libraries
 import cv2
+import numpy as np
+#drone Variable
+velocity = 50 #standard drone speed
+droneState = 0 #drone state
 
 #drone communication libraries
-#drone = tello.Tello()  #creating an object for the drone
-#drone.connect() #communicating with the drone
+'''
+drone = tello.Tello()  #creating an object for the drone
+drone.connect() #communicating with the drone
+arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
 
+#communication function
+def listen():
+    while(arduino_data.inwaiting()==0):
+        pass
+    dataPacket = arduino_data.readline()
+    dataPacket=str(dataPacket, "utf-8")
+    dataPacket=int(dataPacket.strip("\r\n"))
+    return dataPacket
+
+def talk(data):
+    userInput = data+"\r"
+    arduino_data.write(userInput.encode())
+  
+'''
 #creating GUI
 root = Tk()
 root.title("DJI TELLO DRONE Control Centre")
@@ -30,10 +50,11 @@ myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
 
 #GUI variables
 #objects list needs to be a tuple
-objectsList = ["Please Select Object To Track",
+objectsList = ("Please Select Object To Track",
                 "a",
-                "b"
-                ]
+                "b",
+                "a"
+                )
 
 
 
@@ -49,6 +70,7 @@ def surveillance_mode(event): #mode0
     #create mesage box
 
 def read_database(event):#mod1
+    pass
     print("\nEntering Database Mode")
     mode1Win()
     #open data base
@@ -126,10 +148,78 @@ def defend():
         160,
         200,
     ]
-    
 
+ #sureveillance function, how to survey   
+def move():
+    if(droneState==0):
+        drone.takeoff()
+        droneState = 1
+    moves = listen()
 
+    if (moves=="left"):
+        drone.send_rc_control(-velocity,0,0,0)
+    if(moves=="right"):
+        drone.send_rc_control(velocity,0,0,0)
+    if(moves=="antiClockwise"):
+        drone.send_rc_control(0,0,0,-velocity)
+    if (moves=="clockwise"):
+        drone.send_rc_control(0,0,0,velocity)
+    if(moves=="speedUp"):
+        velocity+=2
+    if(moves=="speedDown"):
+        velocity-=2
+    if (moves=="back"):
+        drone.send_rc_control(0,-velocity,0,0)
+    if(moves=="forward"):
+        drone.send_rc_control(0,velocity,0,0)
+    if(moves=="down"):
+        drone.send_rc_control(0,0,-velocity,0)
+    if(moves=="up"):
+        drone.send_rc_control(0,0,velocity,0)
+    if(moves=="takePic"):
+        cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
+    if(moves=="landTakeoff"):
+        if(droneState==0):
+            drone.takeoff()
+            droneState = 1
+        else:
+            drone.land()
+            droneState = 0
+
+def imagingNormal():
+    drone.stream_on()
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img,(720,480))
+    cv2.imshow("Footage",img)
+    cv2.waitkey(1)
+
+def imagingGreen():
+    drone.stream_on()
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img,(720,480))
+    hsv_frame = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    #green mask
+    low_green = np.array([25,52,72])
+    high_green = np.array([102,255,255])
+    green_mask = cv2.inRange(hsv_frame,low_green,high_green)
+    green = cv2.bitwise_and(frame,frame,mask=green_mask)
+    cv2.imshow("Footage",img)
+    cv2.imshow("Green",green)
+    cv2.waitkey(1)  
+def imagingBlack():
+    drone.stream_on()
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img,(720,480))
+    hsv_frame = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
+    #black mask
+    low_black = np.array([45,7,71])
+    high_black = np.array([45,5,11])
+    black_mask = cv2.inRange(hsv_frame,low_black,high_black)
+    black = cv2.bitwise_and(frame,frame,mask=black_mask)
+    cv2.imshow("Footage",img)
+    cv2.imshow("black",black)
+    cv2.waitkey(1)
 
 
 
@@ -191,6 +281,7 @@ def mode1Win(): #read database
 def mode2Win(): #tracking
     top = Toplevel()
     top.title("Tracking Mode")
+    obejectSet = set(objectsList)
 #fucntion to destroy windows 
     def home():
         top.destroy()
@@ -201,7 +292,7 @@ def mode2Win(): #tracking
    #select menu for objects to track
     userObject = StringVar()
     userObject.set("Please Select Object To Track")
-    objectsMenu = tk.OptionMenu(top, userObject, *objectsList)
+    objectsMenu = tk.OptionMenu(top, userObject, *obejectSet)
     objectsMenu['font'] = myFont2
     objectsMenu.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
     #halt tracking function
@@ -256,7 +347,7 @@ btn_surveillance.bind("<Button-1>",surveillance_mode)
 btn_database = tk.Button(root, text="Database", bg="yellow")
 btn_database['font'] = myFont1
 btn_database.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
-btn_database.bind("<Button-1>",read_database)
+#btn_database.bind("<Button-1>",read_database)
 
 #Defensive Mode
 btn_defensive = tk.Button(root, text="Defensive", bg="orange")
