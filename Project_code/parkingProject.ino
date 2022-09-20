@@ -117,7 +117,7 @@ void Gate_Close_1(){
   myservo_1.write(0);
   LED_OFF(green_led_1);
   LED_ON(red_led_1);
-  LCD_print_doubleNoTime("Gate Closed","No ENTRY");
+  LCD_print_doubleNoTime("Please Wait","No Entry");
   gate_one_state = 0;
 }
 
@@ -175,6 +175,7 @@ void LED_ALL_OFF_2(){
 
 void LED_REDS_ON(){
   //turn on both red leds
+  LED_ALL_OFF_0();
   digitalWrite(red_led_1,HIGH);
   digitalWrite(red_led_2,HIGH):
   
@@ -327,19 +328,20 @@ void LCD_with_counter(char line_1[16], char line_2[10], int start_time, int disp
 void automaticControl(){
   if(Serial.available()>0){
     userInput = Serial.read();
-    if(userInput == "automaticToggle"){
+    if(userInput == "manualMode"){
     pre_control_type = 1;
     control_type = 2; //exit automatic
     }
-    else{
-      /*nothing happens if any other control is pressed during
-      auto control*/
+    if(userInput=="parkingSpaces"){
+      parkingSpaces = parking_slots_check();
+      talk(parkingSpaces);
     }
    }
    else{
     //normal automatic control
     gate_one_check();
     if(obstacle_one_state==1){
+      //there is an obstacle
       if(gate_one_state==1){
         //do nothing if the gate is already open
         while(obstacle_one_state==1){
@@ -347,12 +349,14 @@ void automaticControl(){
         }
 
       }
+
       else{
         if(parking_slots_check()==0){
           //what to do if there is a car waiting and there are no spaces available
           LCD_print_doubleNoTime("No Parking","Available");
           LED_ALL_OFF_1();
           LED_ON(red_led_1);
+          Gate_Close_1();
         }
         else{
           //what to do if there is a acr waiting and there are spaces available
@@ -362,6 +366,7 @@ void automaticControl(){
           while(obstacle_one_state==1){
             //wait here while there is an obstacle at gate 1
           }
+          Gate_Close_1();
         }
       }
     }
@@ -388,13 +393,8 @@ void automaticControl(){
     while(obstacle_two_state==1){
       if(gate_two_state==1){
         //do nothing if the gate is already open
-        if(gate_two_state==1){
-        //do nothing if the gate is already open
-        while(obstacle_two_state==1){
           gate_two_check();
         }
-      }
-      }
       else{
         //if there is a car wanting to leave and the gate is closed
         Gate_Open_2();
@@ -439,16 +439,20 @@ void manualControl(){
         //what happens when close gate 2 is pressed
         Gate_Close_2();
       }
-      if(userInput == "parkingSpots"){
+      if(userInput == "parkingSpaces"){
         //what happens when user asks for parking spot available
         parkingSlots = parking_slots_check();
         talk(parkingSlots);
       }
-      if(userInput == "automaticToggle"){
+      if(userInput == "automaticMode"){
         //what happens when automatic control is selected
         //lines of code
         pre_control_type = 0;
         control_type = 2; //exit manual control
+      }
+      if(userInput=="halt"){
+        //what happens when the system is halted
+        halt();
       }
       else{
         //do nothing if there is no new user input
@@ -467,6 +471,17 @@ void changeOver(){
     if(pre_control_type==1){
       control_type = 0;
     }
+    LED_ALL_OFF_0();
+    LED_REDS_ON();
     LCD_with_counter("Do Not Enter","Closing",5,1000);
     Close_Gates();
+}
+
+//halt
+void halt(){
+  control_type=0 //go into manual
+  LED_ALL_OFF_0();
+  LED_REDS_ON();
+  LCD_with_counter("STOP! Closing","Gate in",5,1000);
+  Close_Gates();
 }
