@@ -12,13 +12,13 @@ import tkinter.font as font
 from tkinter import filedialog as fd
 #Imaging libraries
 import cv2
+import cvzone as cvz
 import numpy as np
 #drone Variable
 velocity = 50 #standard drone speed
-droneState = 0 #drone state
-
+mode = "standby"
 #drone communication libraries
-'''
+
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
@@ -36,17 +36,7 @@ def talk(data):
     userInput = data+"\r"
     arduino_data.write(userInput.encode())
   
-'''
-#creating GUI
-root = Tk()
-root.title("DJI TELLO DRONE Control Centre")
-#styling the entire GUI
-canvas = tk.Canvas(root, height=500, width=500)
-frame = tk.Frame(root, bg="#1bcfa8")
-frame.place(relwidth=1,relheight=1)
-#button styles
-myFont2 = font.Font(family='Helvetica', size=20, weight='bold')
-myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
+
 
 #GUI variables
 #objects list needs to be a tuple
@@ -87,6 +77,7 @@ def defensive_mode(event):#mode3
 
 def halt(event):#mode4
     print("\nEntering halt Mode")
+    mode = "standby"
     halt_msg()
     #create mesage box
 
@@ -151,9 +142,9 @@ def defend():
 
  #sureveillance function, how to survey   
 def move():
-    if(droneState==0):
+    if(drone.is_flying==False):
         drone.takeoff()
-        droneState = 1
+       
     moves = listen()
 
     if (moves=="left"):
@@ -180,12 +171,12 @@ def move():
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
     if(moves=="landTakeoff"):
-        if(droneState==0):
+        if(drone.is_flying==False):
             drone.takeoff()
-            droneState = 1
+            
         else:
             drone.land()
-            droneState = 0
+        
 
 def imagingNormal():
     drone.stream_on()
@@ -229,7 +220,7 @@ def mode0Win(): #surveillance
  
     top = Toplevel()
     top.title("DJI TELLO DRONE Control Centre")
-#fucntion to destroy windows 
+    #fucntion to destroy windows 
     def home():
         top.destroy()
     #styling the entire GUI
@@ -282,7 +273,7 @@ def mode2Win(): #tracking
     top = Toplevel()
     top.title("Tracking Mode")
     obejectSet = set(objectsList)
-#fucntion to destroy windows 
+    #fucntion to destroy windows 
     def home():
         top.destroy()
     #styling the entire GUI
@@ -332,9 +323,74 @@ def mode3Win(): #defensive mode
     lb3 = Label(top, text="Mode 3").pack()
 def mode4Win(): #halt
     pass
+    mode = "standby"
     top = Toplevel()
     lb4 = Label(top, text="Mode 4").pack()
 
+#different types of sureveillance mode
+def surveyObjects():
+    pass
+    threshold = 0.75
+    nmsthreshold = 0.2
+    mode = "surveyObjects"
+    drone.streamoff()
+    drone.streamon()
+    if(drone.is_flying==False):
+        drone.takeoff()
+    else:
+        pass
+    classNames = [] #use classID on excel
+    classFile = "cocc.names"
+    with open(classFile,"rt") as f:
+        classNames = f.read().split('\n')
+#COME BACK HERE
+'''
+Dont forget to download coco file
+'''
+    configPath = ""
+    weightPath = ""
+    net = cv2.dnn_DetectionModel(weightPath,configPath)
+    net.setInputSize(320,320)
+    net.setInputScale(1.0/127.5)
+    net.setInputMean((127.5,127.5,127.5))
+    net.setInputSwapRB(True)
+
+    while (mode=="surveyObjects"):
+        move()
+        img = drone.get_frame_read().frame
+        classIds, confs, bbox = net.detect(img, confThreshold=threshold, nmsThreshold=nmsthreshold)
+        try:
+            for classId, conf, box in zip(classIds.flatten(),confs.flatten(),bbox):
+                cvz.cornerRect(img,box)
+                cv2.putText(img, f"{classNames[classId-1].upper()}{round(conf*100,2)}",
+                (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1(0,255,0),2)
+        except:
+            pass
+
+        drone.send_keepalive()
+        cv2.imshow("Footage",img)
+        cv2.waitkey(1)
+
+def surveyParking():
+    pass
+def surveyVegetation():
+    pass
+def surveyRoad():
+    pass
+def halt_survey():
+    mode = "standby"
+    pass
+
+#creating GUI
+root = Tk()
+root.title("DJI TELLO DRONE Control Centre")
+#styling the entire GUI
+canvas = tk.Canvas(root, height=500, width=500)
+frame = tk.Frame(root, bg="#1bcfa8")
+frame.place(relwidth=1,relheight=1)
+#button styles
+myFont2 = font.Font(family='Helvetica', size=20, weight='bold')
+myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
 
 #buttons for different modes
 #Surveillance Mode
@@ -373,6 +429,7 @@ btn_halt['font'] = myFont1
 btn_halt.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
 btn_halt.bind("<Button-1>",halt)
 
+drone.send_keepalive()
 root.attributes("-fullscreen", True)
 root.mainloop()
 
