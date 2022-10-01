@@ -18,7 +18,7 @@ import numpy as np
 velocity = 50 #standard drone speed
 mode = "standby"
 #drone communication libraries
-
+"""
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
@@ -35,7 +35,7 @@ def listen():
 def talk(data):
     userInput = data+"\r"
     arduino_data.write(userInput.encode())
-  
+  """
 
 
 #GUI variables
@@ -346,7 +346,7 @@ def surveyObjects():
 #COME BACK HERE
 '''
 Dont forget to download coco file
-'''
+
     configPath = ""
     weightPath = ""
     net = cv2.dnn_DetectionModel(weightPath,configPath)
@@ -370,7 +370,7 @@ Dont forget to download coco file
         drone.send_keepalive()
         cv2.imshow("Footage",img)
         cv2.waitkey(1)
-
+'''
 def surveyParking():
     pass
 def surveyVegetation():
@@ -429,7 +429,7 @@ btn_halt['font'] = myFont1
 btn_halt.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
 btn_halt.bind("<Button-1>",halt)
 
-drone.send_keepalive()
+'''drone.send_keepalive()'''
 root.attributes("-fullscreen", True)
 root.mainloop()
 
