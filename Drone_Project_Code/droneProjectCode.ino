@@ -27,7 +27,7 @@ void setup(){
 }
 
 void loop(){
-
+    surveillanceMoves();
 }
 
 //functions
@@ -49,7 +49,7 @@ void initArduino(){
     Serial.begin(115200)
 }
 
-void surveillanceMode(){
+void surveillanceMoves(){
     Xval1=analogRead(Xpin1);
     Xval2=analogRead(Xpin2);
     Yval1=analogRead(Ypin1);
@@ -103,6 +103,9 @@ void surveillanceMode(){
     }
     if(TakePicture==1){
         talk(takePic)
+    }
+    else(){
+        talk(none)
     }
     
 }

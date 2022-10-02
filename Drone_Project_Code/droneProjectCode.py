@@ -60,7 +60,6 @@ def surveillance_mode(event): #mode0
     #create mesage box
 
 def read_database(event):#mod1
-    pass
     print("\nEntering Database Mode")
     mode1Win()
     #open data base
@@ -167,6 +166,8 @@ def move():
         drone.send_rc_control(0,0,-velocity,0)
     if(moves=="up"):
         drone.send_rc_control(0,0,velocity,0)
+    if(moves=="none"):
+        drone.send_rc_control(0,0,0,0)
     if(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
@@ -266,9 +267,35 @@ def mode0Win(): #surveillance
     top.attributes("-fullscreen", True)
     top.mainloop()
 def mode1Win(): #read database
-    pass
     top = Toplevel()
-    lb1 = Label(top, text="Mode 1").pack()
+    top.title("DJI TELLO DRONE Control Centre")
+    #fucntion to destroy windows 
+    def home():
+        top.destroy()
+    #styling the entire GUI
+    canvastop = tk.Canvas(top, height=500, width=500)
+    frametop = tk.Frame(top, bg="#1bcfa8")
+    frametop.place(relwidth=1,relheight=1)
+    #read database
+    btn_viewDatabase = tk.Button(top, text="View Database", bg="lime")
+    btn_viewDatabase['font'] = myFont2
+    btn_viewDatabase.place(relx=0, rely=0, relwidth=1, relheight=0.2)
+    #btn_surveillance.bind("<Button-1>",surveillance_mode)
+
+    #clear database
+    btn_clearDatabase = tk.Button(top, text="Clear Database", bg="red", command=clearDatabase)
+    btn_clearDatabase['font'] = myFont2
+    btn_clearDatabase.place(relx=0, rely=0.4, relwidth=1, relheight=0.2)
+    
+
+    #home
+    btn_home = tk.Button(top, text="Main Menu", bg="violet", command=home)
+    btn_home["font"] = myFont2
+    btn_home.place(relx=0,rely=0.8,relwidth=1,relheight=0.2)
+    #btn_home.bind("<Button-1>",home)    
+
+    top.attributes("-fullscreen", True)
+    top.mainloop() 
 def mode2Win(): #tracking
     top = Toplevel()
     top.title("Tracking Mode")
@@ -330,6 +357,7 @@ def mode4Win(): #halt
 #different types of sureveillance mode
 def surveyObjects():
     pass
+    #remember to save data in list as well
     threshold = 0.75
     nmsthreshold = 0.2
     mode = "surveyObjects"
@@ -340,15 +368,16 @@ def surveyObjects():
     else:
         pass
     classNames = [] #use classID on excel
-    classFile = "cocc.names"
+    classFile = "coco.names"
     with open(classFile,"rt") as f:
         classNames = f.read().split('\n')
-#COME BACK HERE
-'''
-Dont forget to download coco file
+    #COME BACK HERE
 
-    configPath = ""
-    weightPath = ""
+    '''
+    Dont forget to download coco file
+
+    configPath = "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
+    weightPath = "frozen_inference_graph.pb"
     net = cv2.dnn_DetectionModel(weightPath,configPath)
     net.setInputSize(320,320)
     net.setInputScale(1.0/127.5)
@@ -364,13 +393,16 @@ Dont forget to download coco file
                 cvz.cornerRect(img,box)
                 cv2.putText(img, f"{classNames[classId-1].upper()}{round(conf*100,2)}",
                 (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1(0,255,0),2)
+                #not sure about the following lines, may need to comment out first 
+                objectsList.append(classNames[classId-1].upper())
+                #here goes the code to place data in the excel spreadsheet
         except:
             pass
 
         drone.send_keepalive()
         cv2.imshow("Footage",img)
         cv2.waitkey(1)
-'''
+        '''
 def surveyParking():
     pass
 def surveyVegetation():
@@ -379,6 +411,14 @@ def surveyRoad():
     pass
 def halt_survey():
     mode = "standby"
+    pass
+
+#database functions
+def clearDatabase():
+    #function to clear database, clear the list as well
+    messagebox.showinfo("Database", f"All data in the database has been cleared")
+
+def viewDatabase():
     pass
 
 #creating GUI
@@ -403,7 +443,7 @@ btn_surveillance.bind("<Button-1>",surveillance_mode)
 btn_database = tk.Button(root, text="Database", bg="yellow")
 btn_database['font'] = myFont1
 btn_database.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
-#btn_database.bind("<Button-1>",read_database)
+btn_database.bind("<Button-1>",read_database)
 
 #Defensive Mode
 btn_defensive = tk.Button(root, text="Defensive", bg="orange")
