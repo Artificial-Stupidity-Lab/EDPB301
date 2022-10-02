@@ -40,11 +40,13 @@ def talk(data):
 
 #GUI variables
 #objects list needs to be a tuple
-objectsList = ("Please Select Object To Track",
-                "a",
+objectsList = ["Please Select Object To Track",
+                "Object | X coordinates | Y coordinates | Time Located",
                 "b",
-                "a"
-                )
+                "a",
+                "a",
+                "c"
+]
 
 
 
@@ -277,7 +279,7 @@ def mode1Win(): #read database
     frametop = tk.Frame(top, bg="#1bcfa8")
     frametop.place(relwidth=1,relheight=1)
     #read database
-    btn_viewDatabase = tk.Button(top, text="View Database", bg="lime")
+    btn_viewDatabase = tk.Button(top, text="Export Database To Excel", bg="lime")
     btn_viewDatabase['font'] = myFont2
     btn_viewDatabase.place(relx=0, rely=0, relwidth=1, relheight=0.2)
     #btn_surveillance.bind("<Button-1>",surveillance_mode)
@@ -299,7 +301,10 @@ def mode1Win(): #read database
 def mode2Win(): #tracking
     top = Toplevel()
     top.title("Tracking Mode")
-    obejectSet = set(objectsList)
+    obejectSet = []
+    for i in objectsList:
+        if i not in obejectSet:
+            obejectSet.append(i)
     #fucntion to destroy windows 
     def home():
         top.destroy()
@@ -418,8 +423,6 @@ def clearDatabase():
     #function to clear database, clear the list as well
     messagebox.showinfo("Database", f"All data in the database has been cleared")
 
-def viewDatabase():
-    pass
 
 #creating GUI
 root = Tk()
