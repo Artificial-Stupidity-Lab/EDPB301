@@ -2,8 +2,7 @@
 from djitellopy import tello
 import time
 from time import sleep
-
-
+import random
 #tkinter(GUI) libraries
 from tkinter import *
 import tkinter as tk
@@ -17,6 +16,8 @@ import numpy as np
 #drone Variable
 velocity = 50 #standard drone speed
 mode = "standby"
+x_distance = 0.0 #used to keep track of drones x position
+y_distance = 0.0 #used to keep track of drones y position
 #drone communication libraries
 """
 drone = tello.Tello()  #creating an object for the drone
@@ -41,7 +42,7 @@ def talk(data):
 #GUI variables
 #objects list needs to be a tuple
 objectsList = ["Please Select Object To Track",
-                "Object | X coordinates | Y coordinates | Time Located",
+                "Object | X coordinates | Y coordinates | Z coordinates |Time",
                 "b",
                 "a",
                 "a",
@@ -93,22 +94,6 @@ def halt_msg():
     messagebox.showinfo("Halt", f"Drone Operations have been halted")
     #tello.land()
     
-
-#functions to write/read data file
-def writeDataFile():
-    pass
-    global fn
-    filename = "C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"
-    # create a file handler 'fn'
-    fn = open(filename, "a") # open filename in write mode
-    # access the file
-    fn.write()
-
-def readDataFile():
-    pass
-    filename = "C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"
-    fn.close()
-
 #general defesive mode function
 def defend():
     pass
@@ -128,8 +113,8 @@ def defend():
     "flipRight",
     "flipBack",
     "flipForward"
-    "spin"]
-    randomTime = [
+    ]
+    randomDistance = [
         20,
         40,
         60,
@@ -138,8 +123,28 @@ def defend():
         120,
         140,
         160,
-        200,
+        200
     ]
+    randomReps = [
+        1,
+        2,
+        3,
+        4,
+        5
+    ]
+    x = random.choice(randomMoves)
+    if x == "flipLeft" or "flipRight" or "flipBack" or "flipForward":
+        y = random.choice(randomReps)
+        x = x[4:].lower()
+        i=0
+        while(i<y):
+            drone.flip(x.lower())
+            i+=1
+    else:
+        y = random.choice(randomDistance)
+        drone.move(x,y)
+
+
 
  #sureveillance function, how to survey   
 def move():
@@ -279,7 +284,7 @@ def mode1Win(): #read database
     frametop = tk.Frame(top, bg="#1bcfa8")
     frametop.place(relwidth=1,relheight=1)
     #read database
-    btn_viewDatabase = tk.Button(top, text="Export Database To Excel", bg="lime")
+    btn_viewDatabase = tk.Button(top, text="Export Database To Excel", bg="lime", command=exportData)
     btn_viewDatabase['font'] = myFont2
     btn_viewDatabase.place(relx=0, rely=0, relwidth=1, relheight=0.2)
     #btn_surveillance.bind("<Button-1>",surveillance_mode)
@@ -399,7 +404,7 @@ def surveyObjects():
                 cv2.putText(img, f"{classNames[classId-1].upper()}{round(conf*100,2)}",
                 (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1(0,255,0),2)
                 #not sure about the following lines, may need to comment out first 
-                objectsList.append(classNames[classId-1].upper())
+                objectsList.append(f"{classNames[classId-1].upper()} | {x} | {y} | {drone.get_height()} | time ")
                 #here goes the code to place data in the excel spreadsheet
         except:
             pass
@@ -421,7 +426,18 @@ def halt_survey():
 #database functions
 def clearDatabase():
     #function to clear database, clear the list as well
+    del objectsList[2:]
     messagebox.showinfo("Database", f"All data in the database has been cleared")
+#functions to write/read data file
+def exportData():
+    pass
+    filename = "C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"
+    # create a file handler 'fn'
+    fh = open(filename, "w") # open filename in write mode
+    fh.write(objectsList)
+    # close the file
+    fh.close()
+
 
 
 #creating GUI
