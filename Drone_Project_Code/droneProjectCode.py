@@ -73,8 +73,10 @@ def tracking_mode(event):#mode2
     #create a list of objects to track
 
 def defensive_mode(event):#mode3
-    print("\nEntering defensive Mode")
-    mode3Win()
+    messagebox.showinfo("Defensive Mode", f'Pleas Wait while the drone defends itself')
+    defend()
+    messagebox.showinfo("Defensive Mode", f'Defensive Mode Completed')
+    #mode3Win()
     #create mesage box
 
 def halt(event):#mode4
@@ -102,18 +104,22 @@ def defend():
     from the second list, if value is a flip do it only once
     if spin, rotate 180 degrees
     '''
-    randomMoves = [
-    "left", 
-    "right",
-    "up",
-    "down",
-    "back",
+    randomflips = [
     "forward",
     "flipLeft",
     "flipRight",
     "flipBack",
     "flipForward"
     ]
+
+    randomMoves = [
+    "left", 
+    "right",
+    "up",
+    "down",
+    "back",
+    ]
+
     randomDistance = [
         20,
         40,
@@ -132,17 +138,19 @@ def defend():
         4,
         5
     ]
-    x = random.choice(randomMoves)
-    if x == "flipLeft" or "flipRight" or "flipBack" or "flipForward":
-        y = random.choice(randomReps)
+    
+    #random movements based on random choices
+    y = random.choice(randomReps)
+    i=0
+    while(i<y):
+        x = random.choice(randomflips)
         x = x[4:].lower()
-        i=0
-        while(i<y):
-            drone.flip(x.lower())
-            i+=1
-    else:
+        drone.flip(x.lower())
         y = random.choice(randomDistance)
-        drone.move(x,y)
+        z = random.choice(randomMoves)
+        drone.move(z,y)
+        i+=1
+    
 
 
 
@@ -254,7 +262,7 @@ def mode0Win(): #surveillance
     #btn_defensive.bind("<Button-1>",defensive_mode)
 
     #Defensive
-    btn_road = tk.Button(top, text="Survey Road", bg="#80c1ff")
+    btn_road = tk.Button(top, text="Survey Road", bg="#80c1ff", command=defend)
     btn_road['font'] = myFont2
     btn_road.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
     #btn_tracking.bind("<Button-1>",tracking_mode)
@@ -318,6 +326,7 @@ def mode2Win(): #tracking
     frametop = tk.Frame(top, bg="#1bcfa8")
     frametop.place(relwidth=1,relheight=1)
    #select menu for objects to track
+    global userObject
     userObject = StringVar()
     userObject.set("Please Select Object To Track")
     objectsMenu = tk.OptionMenu(top, userObject, *obejectSet)
@@ -329,13 +338,13 @@ def mode2Win(): #tracking
         messagebox.showinfo("Halt Tracking", f"Drone Is No loner Tracking Object Listed as PlaceHolder")
 
     #Parking
-    btn_track = tk.Button(top, text="Click To Track", bg="yellow")
+    btn_track = tk.Button(top, text="Click To Track", bg="yellow", command=track)
     btn_track['font'] = myFont2
     btn_track.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #btn_database.bind("<Button-1>",read_database)
 
     #Defensive
-    btn_defensive2 = tk.Button(top, text="Defensive", bg="#80c1ff")
+    btn_defensive2 = tk.Button(top, text="Defensive", bg="#80c1ff", command=defend)
     btn_defensive2['font'] = myFont2
     btn_defensive2.place(relx=0, rely=0.3, relwidth=1, relheight=0.2)
     #btn_tracking.bind("<Button-1>",tracking_mode)
@@ -363,6 +372,15 @@ def mode4Win(): #halt
     mode = "standby"
     top = Toplevel()
     lb4 = Label(top, text="Mode 4").pack()
+
+#tracking mode button(track)
+def track():
+    pass
+    objectOfInterest = userObject.get()
+    #split the string into the x, y, z components
+    #tell drone to go there
+    #when the drone finds its OOI
+    messagebox.showinfo("Tracking Mode",f"Object Located")
 
 #different types of sureveillance mode
 def surveyObjects():
