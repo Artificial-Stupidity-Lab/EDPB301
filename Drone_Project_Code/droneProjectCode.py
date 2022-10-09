@@ -3,6 +3,7 @@ from djitellopy import tello
 import time
 from time import sleep
 import random
+import math
 #tkinter(GUI) libraries
 from tkinter import *
 import tkinter as tk
@@ -18,6 +19,10 @@ velocity = 50 #standard drone speed
 mode = "standby"
 x_distance = 0.0 #used to keep track of drones x position
 y_distance = 0.0 #used to keep track of drones y position
+#object surveiallnce variables
+x_home, y_home = 0,0
+angle = 0 
+speedObjects = 1  #delays for 1 second, therefore speed in roughly 20 cm/s
 #drone communication libraries
 """
 drone = tello.Tello()  #creating an object for the drone
@@ -192,7 +197,70 @@ def move():
             
         else:
             drone.land()
-        
+def moveSurveyObjects():
+    '''
+    Condider keeping the speed constant that way objects can be tracked properly
+    but if to reconsider, speed up, decrease delay, opposite is true
+    '''
+    if(drone.is_flying==False):
+        drone.takeoff()
+       
+    moves = listen()
+
+    if (moves=="left"):
+        drone.move_left(20)
+        x_home -= 20*(math.cos(angle))
+
+    if(moves=="right"):
+        drone.move_right(20)
+        x_home += 20*(math.cos(angle))
+
+    if(moves=="antiClockwise"):
+        drone.rotate_counter_clockwise(1)
+        angle -= 1
+
+    if (moves=="clockwise"):
+        drone.rotate_clockwise(1)
+        angle += 1
+
+    if(moves=="speedUp"):
+        drone.send_rc_control(0,0,0,0)
+        #decrease delay
+
+    if(moves=="speedDown"):
+        drone.send_rc_control(0,0,0,0)
+        #increase delay
+
+    if (moves=="back"):
+        drone.move_back(20)
+        y_home -= 20
+
+    if(moves=="forward"):
+        drone.move_forward(20)
+        y_home += 20
+
+    if(moves=="down"):
+        drone.send_rc_control(0,0,velocity,0)
+
+    if(moves=="up"):
+        drone.send_rc_control(0,0,velocity,0)
+
+    if(moves=="none"):
+        drone.send_rc_control(0,0,0,0)
+
+    if(moves=="takePic"):
+        cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+
+    if(moves=="landTakeoff"):
+        if(drone.is_flying==False):
+            drone.takeoff()
+            
+        else:
+            drone.land()
+
+
+    sleep(speedObjects)
+
 
 def imagingNormal():
     drone.stream_on()
@@ -413,7 +481,7 @@ def surveyObjects():
     net.setInputSwapRB(True)
 
     while (mode=="surveyObjects"):
-        move()
+        moveSurveyObjects()
         img = drone.get_frame_read().frame
         classIds, confs, bbox = net.detect(img, confThreshold=threshold, nmsThreshold=nmsthreshold)
         try:
@@ -422,8 +490,7 @@ def surveyObjects():
                 cv2.putText(img, f"{classNames[classId-1].upper()}{round(conf*100,2)}",
                 (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1(0,255,0),2)
                 #not sure about the following lines, may need to comment out first 
-                objectsList.append(f"{classNames[classId-1].upper()} | {x} | {y} | {drone.get_height()} | time ")
-                #here goes the code to place data in the excel spreadsheet
+                objectsList.append(f"{classNames[classId-1].upper()} | {x_home} | {y_home} | {drone.get_height()} | time")
         except:
             pass
 
