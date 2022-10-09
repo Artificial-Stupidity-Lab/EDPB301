@@ -14,15 +14,19 @@ from tkinter import filedialog as fd
 import cv2
 import cvzone as cvz
 import numpy as np
+###########################################################
 #drone Variable
 velocity = 50 #standard drone speed
 mode = "standby"
-x_distance = 0.0 #used to keep track of drones x position
-y_distance = 0.0 #used to keep track of drones y position
+###########################################################
 #object surveiallnce variables
-x_home, y_home = 0,0
-angle = 0 
-speedObjects = 1  #delays for 1 second, therefore speed in roughly 20 cm/s
+x_pos, y_pos, angle, x_home, y_home = 0,0,0,0,0
+speedObjects = 117/10  #cm/s
+angularSpeedObjects = 50 #degrees/s
+interval = 0.25
+distanceInterval = speedObjects*interval
+angularInterval = angularSpeedObjects*interval
+###########################################################
 #drone communication libraries
 """
 drone = tello.Tello()  #creating an object for the drone
@@ -43,7 +47,7 @@ def talk(data):
     arduino_data.write(userInput.encode())
   """
 
-
+###########################################################
 #GUI variables
 #objects list needs to be a tuple
 objectsList = ["Please Select Object To Track",
@@ -53,7 +57,7 @@ objectsList = ["Please Select Object To Track",
                 "a",
                 "c"
 ]
-
+###########################################################
 
 
 #function for each button
@@ -198,52 +202,53 @@ def move():
         else:
             drone.land()
 def moveSurveyObjects():
-    '''
-    Condider keeping the speed constant that way objects can be tracked properly
-    but if to reconsider, speed up, decrease delay, opposite is true
-    '''
+    global rotate, x_pos, y_pos
+    distanceObjects = 0
+
     if(drone.is_flying==False):
         drone.takeoff()
        
     moves = listen()
 
     if (moves=="left"):
-        drone.move_left(20)
-        x_home -= 20*(math.cos(angle))
+        drone.send_rc_control(-speedObjects,0,0,0)
+        distanceObjects = distanceInterval
+        angle = -180
 
     if(moves=="right"):
-        drone.move_right(20)
-        x_home += 20*(math.cos(angle))
+        drone.send_rc_control(speedObjects,0,0,0)
+        distanceObjects = -distanceInterval
+        angle = 180
 
     if(moves=="antiClockwise"):
-        drone.rotate_counter_clockwise(1)
-        angle -= 1
+        drone.send_rc_control(0,0,0,-angularSpeedObjects)
+        rotate -= angularInterval
 
     if (moves=="clockwise"):
-        drone.rotate_clockwise(1)
-        angle += 1
+        drone.send_rc_control(0,0,0,angularSpeedObjects)
+        rotate += angularInterval
 
     if(moves=="speedUp"):
         drone.send_rc_control(0,0,0,0)
-        #decrease delay
 
     if(moves=="speedDown"):
         drone.send_rc_control(0,0,0,0)
-        #increase delay
 
     if (moves=="back"):
-        drone.move_back(20)
-        y_home -= 20
+        drone.send_rc_control(0,-speedObjects,0,0)
+        distanceObjects = -distanceInterval
+        angle = -90
 
     if(moves=="forward"):
-        drone.move_forward(20)
-        y_home += 20
+        drone.send_rc_control(0,speedObjects,0,0)
+        distanceObjects = distanceInterval
+        angle = 270
 
     if(moves=="down"):
-        drone.send_rc_control(0,0,velocity,0)
+        drone.send_rc_control(0,0,-speedObjects,0)
 
     if(moves=="up"):
-        drone.send_rc_control(0,0,velocity,0)
+        drone.send_rc_control(0,0,speedObjects,0)
 
     if(moves=="none"):
         drone.send_rc_control(0,0,0,0)
@@ -257,11 +262,13 @@ def moveSurveyObjects():
             
         else:
             drone.land()
-
-
-    sleep(speedObjects)
-
-
+    
+    sleep(interval)
+    angle += rotate
+    x_pos += (int(d*math.cos(math.radians(angle))))/100
+    y_pos += (int(d*math.sin(math.radians(angle))))/100
+   
+    
 def imagingNormal():
     drone.stream_on()
     img = drone.get_frame_read().frame
@@ -490,7 +497,7 @@ def surveyObjects():
                 cv2.putText(img, f"{classNames[classId-1].upper()}{round(conf*100,2)}",
                 (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1(0,255,0),2)
                 #not sure about the following lines, may need to comment out first 
-                objectsList.append(f"{classNames[classId-1].upper()} | {x_home} | {y_home} | {drone.get_height()} | time")
+                objectsList.append(f"{classNames[classId-1].upper()} | {x_pos} | {y_pos} | {drone.get_height()} | time")
         except:
             pass
 
