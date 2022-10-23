@@ -46,7 +46,7 @@ listen(){
 
 //init arduino
 void initArduino(){
-    Serial.begin(115200)
+    Serial.begin(115200);
 }
 
 void surveillanceMoves(){
@@ -58,63 +58,69 @@ void surveillanceMoves(){
     Bval2=digitalRead(Bpin2);
     if(Xval1==0){
         //tell python to go left
-        talk(left)
+        talk(left);
     }
     if(Xval1==1023){
         //tell python to go right
-        talk(right)
+        talk(right);
     }
     if(Xval2==0){
         //tell pyton to rotate left
-        talk(antiClockwise)
+        talk(antiClockwise);
     }
     if(Xval2==1023){
         //tell python to rotate right
-        talk(clockwise)
+        talk(clockwise);
     }
     if(Bval1==0){
         //tell py to speed up
-        talk(speedUp)
+        talk(speedUp);
     }
     if(Bval2==0){
         //tell py to slow down
-        talk(speedDown)
+        talk(speedDown);
     }
     if(Yval1==0){
         //tell python to go back
-        talk(back)
+        talk(back);
     }
     if(Yval1==1023){
         //tell python to go forward
-        talk(forward)
+        talk(forward);
     }
     if(Yval2==0){
         //tell pyton to move down
-        talk(down)
+        talk(down);
     }
     if(Xval2==1023){
         //tell python to move down
-        talk(up)
+        talk(up);
     }
     if(Bval1==0 && Bval2==0){
         //tell drone to land or go up
-        talk(landTakeoff)
-        delay(3000)
+        talk(landTakeoff);
+        delay(3000);
     }
     if(TakePicture==1){
-        talk(takePic)
+        talk(takePic);
+    }
+    if(Bval1==1 & Bval2==1){
+        radar();
     }
     else(){
-        talk(none)
+        talk(none);
     }
     
 }
 void radar(){
-    //radar
+    //radar control the stepper motor
+    //may have to remove
     listen();
-    radar = userInput
+    radar = userInput;
 
 }
 void getWeather(){
+    //reading the barometer reading
+    //may have to remove
 
 }

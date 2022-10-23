@@ -452,6 +452,11 @@ def mode4Win(): #halt
 def track():
     pass
     objectOfInterest = userObject.get()
+    objectData = objectOfInterest.split("|") #this should split the objet into name, x, y,z,time, we need x,y,z
+    object_x = int(float(objectData[1]))
+    object_y = int(float(objectData[2]))
+    object_z = int(float(objectData[3]))
+    drone.go_xyz_speed(object_x,object_y,object_z,speedObjects)
     #split the string into the x, y, z components
     #tell drone to go there
     #when the drone finds its OOI
