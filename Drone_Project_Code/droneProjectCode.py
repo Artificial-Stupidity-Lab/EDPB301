@@ -104,6 +104,11 @@ def halt_msg():
     #land()
     messagebox.showinfo("Halt", f"Drone Operations have been halted")
     #tello.land()
+
+def flight_mode(event): #mode5
+    print("\nEntering Flight Mode")
+    mode5Win()
+    #create mesage box
     
 #general defesive mode function
 def defend():
@@ -165,6 +170,7 @@ def defend():
 
  #sureveillance function, how to survey   
 def move():
+    
     if(drone.is_flying==False):
         drone.takeoff()
        
@@ -201,6 +207,9 @@ def move():
             
         else:
             drone.land()
+
+    imagingNormal()
+
 def moveSurveyObjects():
     global rotate, x_pos, y_pos
     distanceObjects = 0
@@ -447,6 +456,46 @@ def mode4Win(): #halt
     mode = "standby"
     top = Toplevel()
     lb4 = Label(top, text="Mode 4").pack()
+def mode5Win(): #flight mode
+    while True:
+
+        top = Toplevel()
+        lb5 = Label(top, text="Mode 5").pack()
+        top.title("Tracking Mode")
+        #styling the entire GUI
+        #fucntion to destroy windows 
+        def home():
+            top.destroy()
+        
+        def haltFlight():
+            messagebox.showinfo("Halt Flight", f"Drone No longer in flight, and will land")
+            home()
+
+        canvastop = tk.Canvas(top, height=500, width=500)
+        frametop = tk.Frame(top, bg="yellow")
+        frametop.place(relwidth=1,relheight=1)
+        mode = "flight"
+        """
+        drone.streamoff()
+        if(drone.is_flying==False):
+            drone.takeoff()
+        else:
+            pass    
+        """
+        #haltflight
+        btn_haltFlight = tk.Button(top, text = "HALT FLIGHT", bg="red", command=haltFlight)
+        btn_haltFlight['font'] = myFont2
+        btn_haltFlight.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
+        #btn_haltTracking.bind("<Button-1>",haltTracking)
+        #movement function
+        move()
+        
+        top.attributes("-fullscreen", True)
+        top.mainloop()
+        
+        
+
+    
 
 #tracking mode button(track)
 def track():
@@ -576,8 +625,14 @@ btn_tracking.bind("<Button-1>",tracking_mode)
 #Battery
 btn_battery = tk.Button(root, text="Get Battery", bg="violet")
 btn_battery["font"] = myFont1
-btn_battery.place(relx=0,rely=0.6,relwidth=1,relheight=0.15)
+btn_battery.place(relx=0,rely=0.6,relwidth=0.5,relheight=0.15)
 btn_battery.bind("<Button-1>",get_battery)
+
+#Standard Flight
+btn_flight = tk.Button(root, text="Flight", bg="blue")
+btn_flight["font"] = myFont1
+btn_flight.place(relx=0.5,rely=0.6,relwidth=0.5,relheight=0.15)
+btn_flight.bind("<Button-1>",flight_mode)
 
 #EStop
 btn_halt = tk.Button(root, text = "HALT", bg="red")
