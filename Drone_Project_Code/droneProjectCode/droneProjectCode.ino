@@ -4,7 +4,7 @@
 #include <Servo.h>
 //variables used
 float dronePosition = 0.00;
-char userInput[15];
+String userInput;
 char arduinoData[15];
 //joystick1
 int Ypin1=A0;
@@ -58,6 +58,13 @@ void initArduino(){
     pinMode(pb_exit_pin,INPUT);
 }
 
+void notify(){
+    digitalWrite(indicator_led, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(500);                       // wait for a second
+    digitalWrite(indicator_led, LOW);    // turn the LED off by making the voltage LOW
+    delay(500);  
+}
+
 void surveillanceMoves(){
     Xval1=analogRead(Xpin1);
     Xval2=analogRead(Xpin2);
@@ -69,95 +76,89 @@ void surveillanceMoves(){
     escape=digitalRead(pb_exit_pin);
     if(Xval1==0){
         //tell python to go left
-        talk(left);
+        talk("left");
         notify();
     }
     if(Xval1==1023){
         //tell python to go right
-        talk(right);
+        talk("right");
         notify();
     }
     if(Xval2==0){
         //tell pyton to rotate left
-        talk(antiClockwise);
+        talk("antiClockwise");
         notify();
     }
     if(Xval2==1023){
         //tell python to rotate right
-        talk(clockwise);
+        talk("clockwise");
         notify();
     }
     if(Bval1==0 && Bval2==1){
         //tell py to speed up
-        talk(speedUp);
+        talk("speedUp");
         notify();
     }
     if(Bval2==0 && Bval1==1){
         //tell py to slow down
-        talk(speedDown);
+        talk("speedDown");
         notify();
     }
     if(Yval1==0){
         //tell python to go back
-        talk(back);
+        talk("back");
         notify();
     }
     if(Yval1==1023){
         //tell python to go forward
-        talk(forward);
+        talk("forward");
         notify();
     }
     if(Yval2==0){
         //tell pyton to move down
-        talk(down);
+        talk("down");
         notify();
     }
     if(Xval2==1023){
         //tell python to move up
-        talk(up);
+        talk("up");
         notify();
     }
     if(Bval1==0 && Bval2==0){
         //tell drone to land or go up
-        talk(landTakeoff);
+        talk("landTakeoff");
         notify();
         delay(3000);
     }
     if(TakePicture==0){
         //big PB
-        talk(takePic);
+        talk("takePic");
         notify();
 
     if(escape==0){
         //samll pb
-        talk(escape);
+        talk("escape");
         notify();
     }
     }
-    if(Bval1==1 & Bval2==1){
+    /*if(Bval1==1 & Bval2==1){
         radar();
         notify();
-    }
-    else(){
-        talk(none);
+    }*/
+    else{
+        talk("none");
     }
     
 }
-void radar(){
+/*void radar(){
     //radar control the stepper motor
     //may have to remove
     listen();
-    radar = userInput;
+    radar_var = userInput;
 
-}
+}*/
 void getWeather(){
     //reading the barometer reading
     //may have to remove
 
-}
-void notify(){
-    digitalWrite(indicator_led, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(500);                       // wait for a second
-    digitalWrite(indicator_led, LOW);    // turn the LED off by making the voltage LOW
-    delay(500);  
 }
