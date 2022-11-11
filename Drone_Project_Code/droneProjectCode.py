@@ -28,24 +28,24 @@ distanceInterval = speedObjects*interval
 angularInterval = angularSpeedObjects*interval
 ###########################################################
 #drone communication libraries
-"""
+
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
+
 arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
 
 #communication function
 def listen():
     while(arduino_data.inwaiting()==0):
-        pass
-    dataPacket = arduino_data.readline()
-    dataPacket=str(dataPacket, "utf-8")
-    dataPacket=int(dataPacket.strip("\r\n"))
-    return dataPacket
+        dataPacket = arduino_data.readline()
+        dataPacket=str(dataPacket, "utf-8")
+        dataPacket=int(dataPacket.strip("\r\n"))
+        return dataPacket
 
 def talk(data):
     userInput = data+"\r"
     arduino_data.write(userInput.encode())
-  """
+
 
 ###########################################################
 #GUI variables
@@ -96,14 +96,14 @@ def halt(event):#mode4
 
 #creating message box function
 def msg_box_battery():
-    pass
     #create function that reads battery from tello drone
-    #battery = tello.get_battery()
-    messagebox.showinfo("Battery Status", f"The Drone's Battery is Something% full")
+    battery = drone.get_battery()
+    messagebox.showinfo("Battery Status", f"The Drone's Battery is {battery}% full")
 def halt_msg():
     #land()
+    drone.land()
     messagebox.showinfo("Halt", f"Drone Operations have been halted")
-    #tello.land()
+    
 
 def flight_mode(event): #mode5
     print("\nEntering Flight Mode")
@@ -112,7 +112,7 @@ def flight_mode(event): #mode5
     
 #general defesive mode function
 def defend():
-    pass
+    
     '''pick random value from 1st list
     if value is from left to forward, pick a disntance
     from the second list, if value is a flip do it only once
@@ -448,17 +448,13 @@ def mode2Win(): #tracking
     top.attributes("-fullscreen", True)
     top.mainloop()
 def mode3Win(): #defensive mode
-    pass
     top = Toplevel()
     lb3 = Label(top, text="Mode 3").pack()
-def mode4Win(): #halt
-    pass
+def mode4Win(): #halt 
     mode = "standby"
     top = Toplevel()
     lb4 = Label(top, text="Mode 4").pack()
 def mode5Win(): #flight mode
-    while True:
-
         top = Toplevel()
         lb5 = Label(top, text="Mode 5").pack()
         top.title("Tracking Mode")
@@ -468,6 +464,7 @@ def mode5Win(): #flight mode
             top.destroy()
         
         def haltFlight():
+            drone.land()
             messagebox.showinfo("Halt Flight", f"Drone No longer in flight, and will land")
             home()
 
@@ -475,13 +472,13 @@ def mode5Win(): #flight mode
         frametop = tk.Frame(top, bg="yellow")
         frametop.place(relwidth=1,relheight=1)
         mode = "flight"
-        """
+    
         drone.streamoff()
         if(drone.is_flying==False):
             drone.takeoff()
         else:
             pass    
-        """
+
         #haltflight
         btn_haltFlight = tk.Button(top, text = "HALT FLIGHT", bg="red", command=haltFlight)
         btn_haltFlight['font'] = myFont2
@@ -492,6 +489,7 @@ def mode5Win(): #flight mode
         
         top.attributes("-fullscreen", True)
         top.mainloop()
+        haltFlight()
         
         
 
@@ -499,7 +497,7 @@ def mode5Win(): #flight mode
 
 #tracking mode button(track)
 def track():
-    pass
+    
     objectOfInterest = userObject.get()
     objectData = objectOfInterest.split("|") #this should split the objet into name, x, y,z,time, we need x,y,z
     object_x = int(float(objectData[1]))
@@ -513,7 +511,7 @@ def track():
 
 #different types of sureveillance mode
 def surveyObjects():
-    pass
+    
     #remember to save data in list as well
     threshold = 0.75
     nmsthreshold = 0.2
@@ -530,8 +528,8 @@ def surveyObjects():
         classNames = f.read().split('\n')
     #COME BACK HERE
 
-    '''
-    Dont forget to download coco file
+    
+    #Dont forget to download coco file
 
     configPath = "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
     weightPath = "frozen_inference_graph.pb"
@@ -555,10 +553,10 @@ def surveyObjects():
         except:
             pass
 
-        drone.send_keepalive()
+        #drone.send_keepalive()
         cv2.imshow("Footage",img)
         cv2.waitkey(1)
-        '''
+        
 def surveyParking():
     pass
 def surveyVegetation():
@@ -576,7 +574,7 @@ def clearDatabase():
     messagebox.showinfo("Database", f"All data in the database has been cleared")
 #functions to write/read data file
 def exportData():
-    pass
+    
     filename = "C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"
     # create a file handler 'fn'
     fh = open(filename, "w") # open filename in write mode
@@ -640,7 +638,7 @@ btn_halt['font'] = myFont1
 btn_halt.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
 btn_halt.bind("<Button-1>",halt)
 
-'''drone.send_keepalive()'''
+#drone.send_keepalive()
 root.attributes("-fullscreen", True)
 root.mainloop()
 

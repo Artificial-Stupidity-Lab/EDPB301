@@ -23,7 +23,7 @@ int Bval2;
 //pb variables
 const int pb_take_Pic_pin = 10;
 int TakePicture;
-int exit;
+int escape;
 const int pb_exit_pin = 11;
 //led variables
 const int indicator_led = 10;
@@ -38,12 +38,12 @@ void loop(){
 
 //functions
 //comm functions
-void talk(data){
+int talk(char data[15]){
   Serial.println(data);
   delay(500);
 }
 
-listen(){
+void listen(){
   while(Serial.available()==0){
     //do nothing while there is no data
   }
@@ -54,8 +54,8 @@ listen(){
 void initArduino(){
     Serial.begin(115200);
     pinMode(indicator_led, OUTPUT);
-    pinMode(pb_take_Pic,INPUT);
-    pinMode(pb_exit,INPUT);
+    pinMode(pb_take_Pic_pin,INPUT);
+    pinMode(pb_exit_pin,INPUT);
 }
 
 void surveillanceMoves(){
@@ -66,7 +66,7 @@ void surveillanceMoves(){
     Bval1=digitalRead(Bpin1);
     Bval2=digitalRead(Bpin2);
     TakePicture=digitalRead(pb_take_Pic_pin);
-    exit=digitalRead(pb_exit_pin);
+    escape=digitalRead(pb_exit_pin);
     if(Xval1==0){
         //tell python to go left
         talk(left);
@@ -87,12 +87,12 @@ void surveillanceMoves(){
         talk(clockwise);
         notify();
     }
-    if(Bval1==0){
+    if(Bval1==0 && Bval2==1){
         //tell py to speed up
         talk(speedUp);
         notify();
     }
-    if(Bval2==0){
+    if(Bval2==0 && Bval1==1){
         //tell py to slow down
         talk(speedDown);
         notify();
@@ -128,9 +128,9 @@ void surveillanceMoves(){
         talk(takePic);
         notify();
 
-    if(exit==0){
+    if(escape==0){
         //samll pb
-        talk(exit);
+        talk(escape);
         notify();
     }
     }
