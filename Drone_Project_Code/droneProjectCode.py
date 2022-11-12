@@ -14,6 +14,7 @@ from tkinter import filedialog as fd
 import cv2
 import cvzone as cvz
 import numpy as np
+import serial as serial
 ###########################################################
 #drone Variable
 velocity = 50 #standard drone speed
@@ -31,16 +32,18 @@ angularInterval = angularSpeedObjects*interval
 
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
+drone.streamon()
 
 arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
 
 #communication function
 def listen():
-    while(arduino_data.inwaiting()==0):
-        dataPacket = arduino_data.readline()
-        dataPacket=str(dataPacket, "utf-8")
-        dataPacket=int(dataPacket.strip("\r\n"))
-        return dataPacket
+    while(arduino_data.inWaiting()==0):
+        pass
+    dataPacket = arduino_data.readline()
+    dataPacket=str(dataPacket, "utf-8")
+    dataPacket=(dataPacket.strip("\r\n"))
+    return dataPacket
 
 def talk(data):
     userInput = data+"\r"
@@ -175,6 +178,7 @@ def move():
         drone.takeoff()
        
     moves = listen()
+    print(moves)
 
     if (moves=="left"):
         drone.send_rc_control(-velocity,0,0,0)
@@ -279,14 +283,13 @@ def moveSurveyObjects():
    
     
 def imagingNormal():
-    drone.stream_on()
     img = drone.get_frame_read().frame
     img = cv2.resize(img,(720,480))
     cv2.imshow("Footage",img)
-    cv2.waitkey(1)
+    cv2.waitKey(1)
 
 def imagingGreen():
-    drone.stream_on()
+   
     img = drone.get_frame_read().frame
     img = cv2.resize(img,(720,480))
     hsv_frame = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
@@ -297,9 +300,9 @@ def imagingGreen():
     green = cv2.bitwise_and(frame,frame,mask=green_mask)
     cv2.imshow("Footage",img)
     cv2.imshow("Green",green)
-    cv2.waitkey(1)  
+    cv2.waitKey(1)  
 def imagingBlack():
-    drone.stream_on()
+    
     img = drone.get_frame_read().frame
     img = cv2.resize(img,(720,480))
     hsv_frame = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
@@ -310,7 +313,7 @@ def imagingBlack():
     black = cv2.bitwise_and(frame,frame,mask=black_mask)
     cv2.imshow("Footage",img)
     cv2.imshow("black",black)
-    cv2.waitkey(1)
+    cv2.waitKey(1)
 
 
 
@@ -473,19 +476,20 @@ def mode5Win(): #flight mode
         frametop.place(relwidth=1,relheight=1)
         mode = "flight"
     
-        drone.streamoff()
+        
         if(drone.is_flying==False):
             drone.takeoff()
         else:
             pass    
 
         #haltflight
+        move()
         btn_haltFlight = tk.Button(top, text = "HALT FLIGHT", bg="red", command=haltFlight)
         btn_haltFlight['font'] = myFont2
         btn_haltFlight.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
         #btn_haltTracking.bind("<Button-1>",haltTracking)
         #movement function
-        move()
+       
         
         top.attributes("-fullscreen", True)
         top.mainloop()
@@ -516,8 +520,7 @@ def surveyObjects():
     threshold = 0.75
     nmsthreshold = 0.2
     mode = "surveyObjects"
-    drone.streamoff()
-    drone.streamon()
+    
     if(drone.is_flying==False):
         drone.takeoff()
     else:
@@ -555,7 +558,7 @@ def surveyObjects():
 
         #drone.send_keepalive()
         cv2.imshow("Footage",img)
-        cv2.waitkey(1)
+        cv2.waitKey(1)
         
 def surveyParking():
     pass

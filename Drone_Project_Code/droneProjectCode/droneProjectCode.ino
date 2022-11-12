@@ -29,7 +29,7 @@ const int pb_exit_pin = 2;
 const int indicator_led = 4;
 
 void setup(){
-
+initArduino();
 }
 
 void loop(){
@@ -40,7 +40,7 @@ void loop(){
 //comm functions
 int talk(char data[15]){
   Serial.println(data);
-  delay(500);
+  delay(250);
 }
 
 void listen(){
@@ -56,13 +56,19 @@ void initArduino(){
     pinMode(indicator_led, OUTPUT);
     pinMode(pb_take_Pic_pin,INPUT);
     pinMode(pb_exit_pin,INPUT);
+    pinMode(Xpin1,INPUT);
+    pinMode(Xpin2,INPUT);
+    pinMode(Ypin1,INPUT);
+    pinMode(Ypin2,INPUT);
+    pinMode(Bpin1,INPUT);
+    pinMode(Bpin2,INPUT);
 }
 
 void notify(){
     digitalWrite(indicator_led, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(500);                       // wait for a second
+    delay(250);                       // wait for a second
     digitalWrite(indicator_led, LOW);    // turn the LED off by making the voltage LOW
-    delay(500);  
+    delay(250);  
 }
 
 void surveillanceMoves(){
@@ -74,57 +80,57 @@ void surveillanceMoves(){
     Bval2=digitalRead(Bpin2);
     TakePicture=digitalRead(pb_take_Pic_pin);
     escape=digitalRead(pb_exit_pin);
-    if(Xval1==0){
+    if(Xval1<50){
         //tell python to go left
         talk("left");
         notify();
     }
-    if(Xval1==1023){
+    if(Xval1>900){
         //tell python to go right
         talk("right");
         notify();
     }
-    if(Xval2==0){
+    if(Xval2<50){
         //tell pyton to rotate left
         talk("antiClockwise");
         notify();
     }
-    if(Xval2==1023){
+    if(Xval2>900){
         //tell python to rotate right
         talk("clockwise");
         notify();
     }
-    if(Bval1==0 && Bval2==1){
+    if(Bval1==1 && Bval2==0){
         //tell py to speed up
         talk("speedUp");
         notify();
     }
-    if(Bval2==0 && Bval1==1){
+    if(Bval2==1 && Bval1==0){
         //tell py to slow down
         talk("speedDown");
         notify();
     }
-    if(Yval1==0){
+    if(Yval1<50){
         //tell python to go back
         talk("back");
         notify();
     }
-    if(Yval1==1023){
+    if(Yval1>900){
         //tell python to go forward
         talk("forward");
         notify();
     }
-    if(Yval2==0){
+    if(Yval2<50){
         //tell pyton to move down
         talk("down");
         notify();
     }
-    if(Xval2==1023){
+    if(Yval2>900){
         //tell python to move up
         talk("up");
         notify();
     }
-    if(Bval1==0 && Bval2==0){
+    if(Bval1==1 && Bval2==1){
         //tell drone to land or go up
         talk("landTakeoff");
         notify();
@@ -134,20 +140,23 @@ void surveillanceMoves(){
         //big PB
         talk("takePic");
         notify();
+    }
 
     if(escape==0){
         //samll pb
         talk("escape");
         notify();
     }
-    }
+    
     /*if(Bval1==1 & Bval2==1){
         radar();
         notify();
     }*/
     else{
         talk("none");
+        digitalWrite(indicator_led, LOW);
     }
+    
     
 }
 /*void radar(){
