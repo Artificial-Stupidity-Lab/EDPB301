@@ -9,24 +9,24 @@ char arduinoData[15];
 //joystick1
 int Ypin1=A0;
 int Xpin1=A1;
-int Bpin1=20;
+int Bpin1=52;
 int Yval1;
 int Xval1;
 int Bval1;
 //joystick1
-int Ypin2=A2;
-int Xpin2=A3;
-int Bpin2=21;
+int Ypin2=A8;
+int Xpin2=A9;
+int Bpin2=50;
 int Yval2;
 int Xval2;
 int Bval2;
 //pb variables
-const int pb_take_Pic_pin = 10;
+const int pb_take_Pic_pin = 3;
 int TakePicture;
 int escape;
-const int pb_exit_pin = 11;
+const int pb_exit_pin = 2;
 //led variables
-const int indicator_led = 10;
+const int indicator_led = 4;
 
 void setup(){
 
