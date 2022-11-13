@@ -187,7 +187,7 @@ def move():
 
     moves = listen()
     print(f"Next move is {moves}")
-    velocity = 10
+    velocity = 50
     if (moves=="left"):
         drone.send_rc_control(-velocity,0,0,0)
     elif(moves=="right"):
@@ -502,6 +502,7 @@ def mode5Win(): #flight mode
     mode='flight'
     while(mode=='flight'):
         move()
+    mode ="standby"
         
         
 
