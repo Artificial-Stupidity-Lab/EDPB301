@@ -17,6 +17,7 @@ import numpy as np
 import serial as serial
 ###########################################################
 #drone Variable
+global velocity
 velocity = 50 #standard drone speed
 mode = "standby"
 ###########################################################
@@ -32,9 +33,9 @@ angularInterval = angularSpeedObjects*interval
 
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
-drone.streamon()
+#drone.streamon()
 
-arduino_data=serial.Serial("com3", baudrate = 115200, timeout = 1)
+arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
 
 #communication function
 def listen():
@@ -44,11 +45,11 @@ def listen():
     dataPacket=str(dataPacket, "utf-8")
     dataPacket=(dataPacket.strip("\r\n"))
     return dataPacket
-
+'''
 def talk(data):
     userInput = data+"\r"
     arduino_data.write(userInput.encode())
-
+'''
 
 ###########################################################
 #GUI variables
@@ -108,9 +109,17 @@ def halt_msg():
     messagebox.showinfo("Halt", f"Drone Operations have been halted")
     
 
-def flight_mode(event): #mode5
+def flight_mode(): #mode5
     print("\nEntering Flight Mode")
-    mode5Win()
+    root.destroy()
+    mode="flight"
+    if (mode=="flight"):
+        while mode=="flight":
+            #tello(drone) librar
+            move()
+    
+    
+        
     #create mesage box
     
 #general defesive mode function
@@ -173,46 +182,42 @@ def defend():
 
  #sureveillance function, how to survey   
 def move():
-    
     if(drone.is_flying==False):
         drone.takeoff()
-       
-    moves = listen()
-    print(moves)
 
+    moves = listen()
+    print(f"Next move is {moves}")
+    velocity = 10
     if (moves=="left"):
         drone.send_rc_control(-velocity,0,0,0)
-    if(moves=="right"):
+    elif(moves=="right"):
         drone.send_rc_control(velocity,0,0,0)
-    if(moves=="antiClockwise"):
+    elif(moves=="antiClockwise"):
         drone.send_rc_control(0,0,0,-velocity)
-    if (moves=="clockwise"):
+    elif (moves=="clockwise"):
         drone.send_rc_control(0,0,0,velocity)
-    if(moves=="speedUp"):
-        velocity+=2
-    if(moves=="speedDown"):
-        velocity-=2
-    if (moves=="back"):
+        #drone.rotate_clockwise(10)
+    elif (moves=="back"):
         drone.send_rc_control(0,-velocity,0,0)
-    if(moves=="forward"):
+    elif(moves=="forward"):
         drone.send_rc_control(0,velocity,0,0)
-    if(moves=="down"):
+    elif(moves=="down"):
         drone.send_rc_control(0,0,-velocity,0)
-    if(moves=="up"):
+    elif(moves=="up"):
         drone.send_rc_control(0,0,velocity,0)
-    if(moves=="none"):
-        drone.send_rc_control(0,0,0,0)
-    if(moves=="takePic"):
+    elif(moves=="none"):
+        pass
+    elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
-    if(moves=="landTakeoff"):
-        if(drone.is_flying==False):
-            drone.takeoff()
-            
-        else:
-            drone.land()
+    elif(moves=="landTakeoff"):
+        drone.land()
+        mode="standby"
+    else:
+        pass
 
-    imagingNormal()
+    sleep(0.05)
+    #imagingNormal()
 
 def moveSurveyObjects():
     global rotate, x_pos, y_pos
@@ -458,6 +463,7 @@ def mode4Win(): #halt
     top = Toplevel()
     lb4 = Label(top, text="Mode 4").pack()
 def mode5Win(): #flight mode
+    '''
         top = Toplevel()
         lb5 = Label(top, text="Mode 5").pack()
         top.title("Tracking Mode")
@@ -470,30 +476,32 @@ def mode5Win(): #flight mode
             drone.land()
             messagebox.showinfo("Halt Flight", f"Drone No longer in flight, and will land")
             home()
-
+        
         canvastop = tk.Canvas(top, height=500, width=500)
         frametop = tk.Frame(top, bg="yellow")
         frametop.place(relwidth=1,relheight=1)
         mode = "flight"
+    '''
+        
+    if(drone.is_flying==False):
+        drone.takeoff()
+    #haltflight
     
-        
-        if(drone.is_flying==False):
-            drone.takeoff()
-        else:
-            pass    
-
-        #haltflight
+    '''
+    btn_haltFlight = tk.Button(top, text = "HALT FLIGHT", bg="red", command=haltFlight)
+    btn_haltFlight['font'] = myFont2
+    btn_haltFlight.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
+    #btn_haltTracking.bind("<Button-1>",haltTracking)
+    #movement function
+    '''
+    
+    
+    #top.attributes("-fullscreen", True)
+    #top.mainloop()
+    #haltFlight()
+    mode='flight'
+    while(mode=='flight'):
         move()
-        btn_haltFlight = tk.Button(top, text = "HALT FLIGHT", bg="red", command=haltFlight)
-        btn_haltFlight['font'] = myFont2
-        btn_haltFlight.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
-        #btn_haltTracking.bind("<Button-1>",haltTracking)
-        #movement function
-       
-        
-        top.attributes("-fullscreen", True)
-        top.mainloop()
-        haltFlight()
         
         
 
@@ -531,7 +539,7 @@ def surveyObjects():
         classNames = f.read().split('\n')
     #COME BACK HERE
 
-    
+    '''
     #Dont forget to download coco file
 
     configPath = "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
@@ -559,7 +567,7 @@ def surveyObjects():
         #drone.send_keepalive()
         cv2.imshow("Footage",img)
         cv2.waitKey(1)
-        
+        '''
 def surveyParking():
     pass
 def surveyVegetation():
@@ -630,10 +638,10 @@ btn_battery.place(relx=0,rely=0.6,relwidth=0.5,relheight=0.15)
 btn_battery.bind("<Button-1>",get_battery)
 
 #Standard Flight
-btn_flight = tk.Button(root, text="Flight", bg="blue")
+btn_flight = tk.Button(root, text="Flight", bg="blue",command=flight_mode)
 btn_flight["font"] = myFont1
 btn_flight.place(relx=0.5,rely=0.6,relwidth=0.5,relheight=0.15)
-btn_flight.bind("<Button-1>",flight_mode)
+#btn_flight.bind("<Button-1>",flight_mode)
 
 #EStop
 btn_halt = tk.Button(root, text = "HALT", bg="red")
@@ -642,6 +650,7 @@ btn_halt.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
 btn_halt.bind("<Button-1>",halt)
 
 #drone.send_keepalive()
+#root.geometry("350x350")
 root.attributes("-fullscreen", True)
 root.mainloop()
 

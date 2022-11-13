@@ -52,7 +52,7 @@ void listen(){
 
 //init arduino
 void initArduino(){
-    Serial.begin(115200);
+    Serial.begin(9600);
     pinMode(indicator_led, OUTPUT);
     pinMode(pb_take_Pic_pin,INPUT);
     pinMode(pb_exit_pin,INPUT);
@@ -66,9 +66,9 @@ void initArduino(){
 
 void notify(){
     digitalWrite(indicator_led, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(250);                       // wait for a second
+    delay(50);                       // wait for a second
     digitalWrite(indicator_led, LOW);    // turn the LED off by making the voltage LOW
-    delay(250);  
+    delay(50);  
 }
 
 void surveillanceMoves(){
@@ -102,12 +102,12 @@ void surveillanceMoves(){
     }
     if(Bval1==1 && Bval2==0){
         //tell py to speed up
-        talk("speedUp");
+        talk("up");
         notify();
     }
     if(Bval2==1 && Bval1==0){
         //tell py to slow down
-        talk("speedDown");
+        talk("down");
         notify();
     }
     if(Yval1<50){
@@ -122,12 +122,12 @@ void surveillanceMoves(){
     }
     if(Yval2<50){
         //tell pyton to move down
-        talk("down");
+        //talk("down");
         notify();
     }
     if(Yval2>900){
         //tell python to move up
-        talk("up");
+        //talk("up");
         notify();
     }
     if(Bval1==1 && Bval2==1){
@@ -144,8 +144,9 @@ void surveillanceMoves(){
 
     if(escape==0){
         //samll pb
-        talk("escape");
+        talk("landTakeoff");
         notify();
+        delay(3000);
     }
     
     /*if(Bval1==1 & Bval2==1){
@@ -153,9 +154,9 @@ void surveillanceMoves(){
         notify();
     }*/
     else{
-        talk("none");
         digitalWrite(indicator_led, LOW);
     }
+    delay(50);
     
     
 }
