@@ -19,6 +19,7 @@ import serial as serial
 #drone Variable
 global velocity
 velocity = 50 #standard drone speed
+global mode
 mode = "standby"
 ###########################################################
 #object surveiallnce variables
@@ -33,7 +34,7 @@ angularInterval = angularSpeedObjects*interval
 
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
-#drone.streamon()
+drone.streamon()
 
 arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
 
@@ -117,6 +118,8 @@ def flight_mode(): #mode5
         while mode=="flight":
             #tello(drone) librar
             move()
+    mode="standby"
+    drone.streamoff()
     
     
         
@@ -206,18 +209,22 @@ def move():
     elif(moves=="up"):
         drone.send_rc_control(0,0,velocity,0)
     elif(moves=="none"):
-        pass
+        drone.send_keepalive()
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
     elif(moves=="landTakeoff"):
-        drone.land()
-        mode="standby"
+        if(drone.is_flying==False):
+            drone.takeoff()
+            mode=="flight"
+        else:
+            drone.land()
+            mode="standby"
     else:
         pass
 
     sleep(0.05)
-    #imagingNormal()
+    imagingNormal()
 
 def moveSurveyObjects():
     global rotate, x_pos, y_pos
@@ -481,19 +488,19 @@ def mode5Win(): #flight mode
         frametop = tk.Frame(top, bg="yellow")
         frametop.place(relwidth=1,relheight=1)
         mode = "flight"
-    '''
+    
         
     if(drone.is_flying==False):
         drone.takeoff()
     #haltflight
     
-    '''
+    
     btn_haltFlight = tk.Button(top, text = "HALT FLIGHT", bg="red", command=haltFlight)
     btn_haltFlight['font'] = myFont2
     btn_haltFlight.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
     #btn_haltTracking.bind("<Button-1>",haltTracking)
     #movement function
-    '''
+    
     
     
     #top.attributes("-fullscreen", True)
@@ -503,6 +510,7 @@ def mode5Win(): #flight mode
     while(mode=='flight'):
         move()
     mode ="standby"
+    '''
         
         
 
