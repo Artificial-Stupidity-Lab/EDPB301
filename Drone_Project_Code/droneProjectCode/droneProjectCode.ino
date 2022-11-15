@@ -78,37 +78,44 @@ void surveillanceMoves(){
     Yval2=analogRead(Ypin2);
     Bval1=digitalRead(Bpin1);
     Bval2=digitalRead(Bpin2);
-    TakePicture=digitalRead(pb_take_Pic_pin);
-    escape=digitalRead(pb_exit_pin);
+    standby=digitalRead(pb_take_Pic_pin);
+    //escape=digitalRead(pb_exit_pin);
     if(Xval1<50){
         //tell python to go left
+        //yellow left
         talk("left");
         notify();
     }
     if(Xval1>900){
         //tell python to go right
+        //yellow right
         talk("right");
         notify();
     }
     if(Xval2<50){
         //tell pyton to rotate left
+        //red left       
         talk("antiClockwise");
         notify();
     }
     if(Xval2>900){
         //tell python to rotate right
+        //red right
         talk("clockwise");
         notify();
     }
     if(Bval1==1 && Bval2==0){
         //tell py to speed up
-        talk("up");
+        //landTake off, yellow press
+        talk("landTakeoff");
         notify();
+        delay(3000);
     }
     if(Bval2==1 && Bval1==0){
         //tell py to slow down
-        talk("down");
-        notify();
+        //take picture, red press
+        talk("takePic");
+        notify();       
     }
     if(Yval1<50){
         //tell python to go back
@@ -122,21 +129,21 @@ void surveillanceMoves(){
     }
     if(Yval2<50){
         //tell pyton to move down
-        //talk("down");
+        talk("down");
         notify();
     }
     if(Yval2>900){
         //tell python to move up
-        //talk("up");
+        talk("up");
         notify();
     }
-    if(Bval1==1 && Bval2==1){
+    if(standby==0){
         //tell drone to land or go up
-        talk("landTakeoff");
+        talk("standby");
         notify();
         delay(3000);
     }
-    if(TakePicture==0){
+   /* if(TakePicture==0){
         //big PB
         talk("takePic");
         notify();

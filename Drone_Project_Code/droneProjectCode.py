@@ -185,9 +185,6 @@ def defend():
 
  #sureveillance function, how to survey   
 def move():
-    if(drone.is_flying==False):
-        drone.takeoff()
-
     moves = listen()
     print(f"Next move is {moves}")
     velocity = 50
@@ -216,10 +213,16 @@ def move():
     elif(moves=="landTakeoff"):
         if(drone.is_flying==False):
             drone.takeoff()
-            mode=="flight"
+            #mode=="flight"
         else:
             drone.land()
-            mode="standby"
+            #mode="standby"
+    
+    elif(moves=="standby"):
+        drone.land()
+        mode = "standby"
+        gui()
+
     else:
         pass
 
@@ -603,63 +606,66 @@ def exportData():
     fh.close()
 
 
+def gui():
+    #creating GUI
+    root = Tk()
+    root.title("DJI TELLO DRONE Control Centre")
+    #styling the entire GUI
+    canvas = tk.Canvas(root, height=500, width=500)
+    frame = tk.Frame(root, bg="#1bcfa8")
+    frame.place(relwidth=1,relheight=1)
+    #button styles
+    myFont2 = font.Font(family='Helvetica', size=20, weight='bold')
+    myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
 
-#creating GUI
-root = Tk()
-root.title("DJI TELLO DRONE Control Centre")
-#styling the entire GUI
-canvas = tk.Canvas(root, height=500, width=500)
-frame = tk.Frame(root, bg="#1bcfa8")
-frame.place(relwidth=1,relheight=1)
-#button styles
-myFont2 = font.Font(family='Helvetica', size=20, weight='bold')
-myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
+    #buttons for different modes
+    #Surveillance Mode
+    btn_surveillance = tk.Button(root, text="Surveillance", bg="lime")
+    btn_surveillance['font'] = myFont1
+    btn_surveillance.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
+    btn_surveillance.bind("<Button-1>",surveillance_mode)
 
-#buttons for different modes
-#Surveillance Mode
-btn_surveillance = tk.Button(root, text="Surveillance", bg="lime")
-btn_surveillance['font'] = myFont1
-btn_surveillance.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
-btn_surveillance.bind("<Button-1>",surveillance_mode)
+    #Database Mode
+    btn_database = tk.Button(root, text="Database", bg="yellow")
+    btn_database['font'] = myFont1
+    btn_database.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
+    btn_database.bind("<Button-1>",read_database)
 
-#Database Mode
-btn_database = tk.Button(root, text="Database", bg="yellow")
-btn_database['font'] = myFont1
-btn_database.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
-btn_database.bind("<Button-1>",read_database)
+    #Defensive Mode
+    btn_defensive = tk.Button(root, text="Defensive", bg="orange")
+    btn_defensive['font'] = myFont1
+    btn_defensive.place(relx=0, rely=0.3, relwidth=0.5, relheight=0.2)
+    btn_defensive.bind("<Button-1>",defensive_mode)
 
-#Defensive Mode
-btn_defensive = tk.Button(root, text="Defensive", bg="orange")
-btn_defensive['font'] = myFont1
-btn_defensive.place(relx=0, rely=0.3, relwidth=0.5, relheight=0.2)
-btn_defensive.bind("<Button-1>",defensive_mode)
+    #Tracking Mode
+    btn_tracking = tk.Button(root, text="Tracking", bg="#80c1ff")
+    btn_tracking['font'] = myFont1
+    btn_tracking.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
+    btn_tracking.bind("<Button-1>",tracking_mode)
 
-#Tracking Mode
-btn_tracking = tk.Button(root, text="Tracking", bg="#80c1ff")
-btn_tracking['font'] = myFont1
-btn_tracking.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
-btn_tracking.bind("<Button-1>",tracking_mode)
+    #Battery
+    btn_battery = tk.Button(root, text="Get Battery", bg="violet")
+    btn_battery["font"] = myFont1
+    btn_battery.place(relx=0,rely=0.6,relwidth=0.5,relheight=0.15)
+    btn_battery.bind("<Button-1>",get_battery)
 
-#Battery
-btn_battery = tk.Button(root, text="Get Battery", bg="violet")
-btn_battery["font"] = myFont1
-btn_battery.place(relx=0,rely=0.6,relwidth=0.5,relheight=0.15)
-btn_battery.bind("<Button-1>",get_battery)
+    #Standard Flight
+    btn_flight = tk.Button(root, text="Flight", bg="blue",command=flight_mode)
+    btn_flight["font"] = myFont1
+    btn_flight.place(relx=0.5,rely=0.6,relwidth=0.5,relheight=0.15)
+    #btn_flight.bind("<Button-1>",flight_mode)
 
-#Standard Flight
-btn_flight = tk.Button(root, text="Flight", bg="blue",command=flight_mode)
-btn_flight["font"] = myFont1
-btn_flight.place(relx=0.5,rely=0.6,relwidth=0.5,relheight=0.15)
-#btn_flight.bind("<Button-1>",flight_mode)
+    #EStop
+    btn_halt = tk.Button(root, text = "HALT", bg="red")
+    btn_halt['font'] = myFont1
+    btn_halt.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
+    btn_halt.bind("<Button-1>",halt)
 
-#EStop
-btn_halt = tk.Button(root, text = "HALT", bg="red")
-btn_halt['font'] = myFont1
-btn_halt.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
-btn_halt.bind("<Button-1>",halt)
+    #drone.send_keepalive()
+    #root.geometry("350x350")
+    root.attributes("-fullscreen", True)
+    root.mainloop()
 
-#drone.send_keepalive()
-#root.geometry("350x350")
-root.attributes("-fullscreen", True)
-root.mainloop()
+#running the gui
+gui()
 
