@@ -78,7 +78,7 @@ void surveillanceMoves(){
     Yval2=analogRead(Ypin2);
     Bval1=digitalRead(Bpin1);
     Bval2=digitalRead(Bpin2);
-    standby=digitalRead(pb_take_Pic_pin);
+    //standby=digitalRead(pb_take_Pic_pin);
     //escape=digitalRead(pb_exit_pin);
     if(Xval1<50){
         //tell python to go left
@@ -137,7 +137,7 @@ void surveillanceMoves(){
         talk("up");
         notify();
     }
-    if(standby==0){
+    if(Bval1==1 & Bval2==1){
         //tell drone to land or go up
         talk("standby");
         notify();
