@@ -108,8 +108,9 @@ void surveillanceMoves(){
         //tell py to speed up
         //landTake off, yellow press
         talk("landTakeoff");
-        notify();
-        delay(3000);
+        digitalWrite(indicator_led, HIGH);
+        delay(5000);
+        digitalWrite(indicator_led, LOW);;
     }
     if(Bval2==1 && Bval1==0){
         //tell py to slow down
@@ -140,8 +141,9 @@ void surveillanceMoves(){
     if(Bval1==1 & Bval2==1){
         //tell drone to land or go up
         talk("standby");
-        notify();
-        delay(3000);
+        digitalWrite(indicator_led, HIGH);
+        delay(5000);
+        digitalWrite(indicator_led, LOW);
     }
    /* if(TakePicture==0){
         //big PB
