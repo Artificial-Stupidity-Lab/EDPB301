@@ -36,7 +36,7 @@ drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
 
-arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
+arduino_data=serial.Serial("com5",baudrate = 9600, timeout=1)
 
 #communication function
 def listen():
@@ -649,6 +649,7 @@ def exportData():
 
 def gui():
     #creating GUI
+    global root
     root = Tk()
     root.title("DJI TELLO DRONE Control Centre")
     #styling the entire GUI
