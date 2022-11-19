@@ -15,6 +15,7 @@ import cv2
 import cvzone as cvz
 import numpy as np
 import serial as serial
+
 ###########################################################
 #drone Variable
 global velocity
@@ -24,9 +25,10 @@ mode = "standby"
 ###########################################################
 #object surveiallnce variables
 x_pos, y_pos, angle, x_home, y_home = 0,0,0,0,0
-speedObjects = 117/10  #cm/s
+speedObjects = 12# 117/10  #cm/s
 angularSpeedObjects = 50 #degrees/s
 interval = 0.25
+rotate = 0
 distanceInterval = speedObjects*interval
 angularInterval = angularSpeedObjects*interval
 ###########################################################
@@ -36,7 +38,8 @@ drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
 
-arduino_data=serial.Serial("com5",baudrate = 9600, timeout=1)
+arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
+
 
 #communication function
 def listen():
@@ -251,7 +254,7 @@ def moveVegetation():
     elif(moves=="up" and drone.is_flying==True):
         drone.send_rc_control(0,0,velocity,0)
     elif(moves=="none"):
-        drone.send_keepalive()
+        pass
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
@@ -273,6 +276,7 @@ def moveVegetation():
 
     sleep(0.05)
     imagingGreen()
+    
 
 def moveSurveyObjects():
     global rotate, x_pos, y_pos
@@ -326,8 +330,8 @@ def moveSurveyObjects():
     
     sleep(interval)
     angle += rotate
-    x_pos += (int(d*math.cos(math.radians(angle))))/100
-    y_pos += (int(d*math.sin(math.radians(angle))))/100
+    x_pos += (int(distanceObjects*math.cos(math.radians(angle))))/100
+    y_pos += (int(distanceObjects*math.sin(math.radians(angle))))/100
    
     
 def imagingNormal():
@@ -339,15 +343,16 @@ def imagingNormal():
 def imagingGreen():
    
     img = drone.get_frame_read().frame
+   
     img = cv2.resize(img,(720,480))
     hsv_frame = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
     #green mask
     low_green = np.array([25,52,72])
     high_green = np.array([102,255,255])
     green_mask = cv2.inRange(hsv_frame,low_green,high_green)
-    green = cv2.bitwise_and(frame,frame,mask=green_mask)
+    green = cv2.bitwise_and(img,img,mask=green_mask)
     cv2.imshow("Footage",img)
-    cv2.imshow("Green",green)
+    cv2.imshow("Green Mask",green)
     cv2.waitKey(1)  
 def imagingBlack():
     
@@ -369,53 +374,57 @@ def imagingBlack():
 #functions for different modes
 def mode0Win(): #surveillance
     root.destroy()
-    top = Toplevel()
-    top.title("DJI TELLO DRONE Control Centre")
+    global top_mod0
+    top_mod0 = Toplevel()
+    top_mod0.title("DJI TELLO DRONE Control Centre")
     #fucntion to destroy windows 
     def home():
-        top.destroy()
+        top_mod0.destroy()
     #styling the entire GUI
-    canvastop = tk.Canvas(top, height=500, width=500)
-    frametop = tk.Frame(top, bg="#1bcfa8")
+    canvastop = tk.Canvas(top_mod0, height=500, width=500)
+    frametop = tk.Frame(top_mod0, bg="#1bcfa8")
     frametop.place(relwidth=1,relheight=1)
+    myFont2 = font.Font(family='Helvetica', size=20, weight='bold')
+    myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
    #mde 0 buttons (surveillance mode)
-    btn_object = tk.Button(top, text="Survey Objects", bg="lime")
+    btn_object = tk.Button(top_mod0, text="Survey Objects", bg="lime", command= surveyObjects)
     btn_object['font'] = myFont2
     btn_object.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
-    btn_surveillance.bind("<Button-1>",surveillance_mode)
+    #btn_surveillance.bind("<Button-1>",surveyObjects)
 
     #Parking
-    btn_parking = tk.Button(top, text="Survey Parking", bg="yellow")
+    btn_parking = tk.Button(top_mod0, text="Survey Parking", bg="yellow")
     btn_parking['font'] = myFont2
     btn_parking.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #btn_database.bind("<Button-1>",read_database)
 
     #Vegetation
-    btn_vegetation = tk.Button(top, text="Survey Vegetation", bg="orange")
+    btn_vegetation = tk.Button(top_mod0, text="Survey Vegetation", bg="orange", command=surveyVegetation)
     btn_vegetation['font'] = myFont2
     btn_vegetation.place(relx=0, rely=0.3, relwidth=0.5, relheight=0.2)
-    btn_defensive.bind("<Button-1>",surveyVegetation)
+    #btn_defensive.bind("<Button-1>",surveyVegetation)
 
     #Defensive
-    btn_road = tk.Button(top, text="Survey Road", bg="#80c1ff", command=defend)
+    btn_road = tk.Button(top_mod0, text="Survey Road", bg="#80c1ff", command=defend)
     btn_road['font'] = myFont2
     btn_road.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
     #btn_tracking.bind("<Button-1>",tracking_mode)
 
     #home
-    btn_home = tk.Button(top, text="Main Menu", bg="violet", command=home)
+    btn_home = tk.Button(top_mod0, text="Main Menu", bg="violet", command=home)
     btn_home["font"] = myFont2
     btn_home.place(relx=0,rely=0.6,relwidth=1,relheight=0.15)
     #btn_home.bind("<Button-1>",home)
 
     #EStop
-    btn_halt = tk.Button(top, text = "HALT", bg="red")
+    btn_halt = tk.Button(top_mod0, text = "HALT", bg="red")
     btn_halt['font'] = myFont2
     btn_halt.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
     #btn_halt.bind("<Button-1>",halt)
 
     top.attributes("-fullscreen", True)
     top.mainloop()
+
 def mode1Win(): #read database
     top = Toplevel()
     top.title("DJI TELLO DRONE Control Centre")
@@ -446,6 +455,7 @@ def mode1Win(): #read database
 
     top.attributes("-fullscreen", True)
     top.mainloop() 
+
 def mode2Win(): #tracking
     top = Toplevel()
     top.title("Tracking Mode")
@@ -568,8 +578,8 @@ def track():
 
 #different types of sureveillance mode
 def surveyObjects():
-    top.destroy()
-    root.destroy()
+    top_mod0.destroy()
+    
     
     #remember to save data in list as well
     threshold = 0.75
@@ -618,7 +628,7 @@ def surveyObjects():
 def surveyParking():
     pass
 def surveyVegetation():
-    top.destroy()
+    top_mod0.destroy()
     mode = "surveyVegetation"
     while (mode=="surveyVegetation"):
         moveVegetation()
@@ -657,6 +667,8 @@ def gui():
     frame = tk.Frame(root, bg="#1bcfa8")
     frame.place(relwidth=1,relheight=1)
     #button styles
+    global myFont2
+    global myFont1
     myFont2 = font.Font(family='Helvetica', size=20, weight='bold')
     myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
 
