@@ -19,18 +19,24 @@ import serial as serial
 ###########################################################
 #drone Variable
 global velocity
-velocity = 50 #standard drone speed
+velocity = 30 #standard drone speed
 global mode
 mode = "standby"
 ###########################################################
 #object surveiallnce variables
-x_pos, y_pos, angle, x_home, y_home = 0,0,0,0,0
-speedObjects = 12# 117/10  #cm/s
+x_pos, y_pos, x_home, y_home = 0,0,0,0
+speedObjects = 50# 117/10  #cm/s
 angularSpeedObjects = 50 #degrees/s
 interval = 0.25
 rotate = 0
+global angle
+angle = 0
 distanceInterval = speedObjects*interval
 angularInterval = angularSpeedObjects*interval
+
+frameWidth = 480
+frameHeight = 360
+frameCounter = 0
 ###########################################################
 #drone communication libraries
 
@@ -59,7 +65,7 @@ def talk(data):
 #GUI variables
 #objects list needs to be a tuple
 objectsList = ["Please Select Object To Track",
-                "Object | X coordinates | Y coordinates | Z coordinates |Time",
+                "Object | Time",
                 "b",
                 "a",
                 "a",
@@ -190,7 +196,7 @@ def defend():
 def move():
     moves = listen()
     print(f"Next move is {moves}")
-    velocity = 50
+    velocity = 30
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-velocity,0,0,0)
     elif(moves=="right" and drone.is_flying==True):
@@ -209,7 +215,7 @@ def move():
     elif(moves=="up" and drone.is_flying==True):
         drone.send_rc_control(0,0,velocity,0)
     elif(moves=="none"):
-        drone.send_keepalive()
+        drone.send_rc_control(0, 0, 0, 0)
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
@@ -229,13 +235,13 @@ def move():
     else:
         pass
 
-    sleep(0.05)
+    #sleep(0.05)
     imagingNormal()
 
 def moveVegetation():
     moves = listen()
     print(f"Next move is {moves}")
-    velocity = 50
+    velocity = 30
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-velocity,0,0,0)
     elif(moves=="right" and drone.is_flying==True):
@@ -254,7 +260,7 @@ def moveVegetation():
     elif(moves=="up" and drone.is_flying==True):
         drone.send_rc_control(0,0,velocity,0)
     elif(moves=="none"):
-        pass
+        drone.send_rc_control(0, 0, 0, 0)
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
@@ -274,43 +280,43 @@ def moveVegetation():
     else:
         pass
 
-    sleep(0.05)
+    #sleep(0.05)
     imagingGreen()
     
 
 def moveSurveyObjects():
-    global rotate, x_pos, y_pos
-    distanceObjects = 0
+    #global rotate, x_pos, y_pos,angle
+    #distanceObjects = 0
        
     moves = listen()
 
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-speedObjects,0,0,0)
-        distanceObjects = distanceInterval
-        angle = -180
+        #distanceObjects = distanceInterval
+        #angle = -180
 
     if(moves=="right" and drone.is_flying==True):
         drone.send_rc_control(speedObjects,0,0,0)
-        distanceObjects = -distanceInterval
-        angle = 180
+        #distanceObjects = -distanceInterval
+        #angle = 180
 
     if(moves=="antiClockwise" and drone.is_flying==True):
         drone.send_rc_control(0,0,0,-angularSpeedObjects)
-        rotate -= angularInterval
+        #rotate -= angularInterval
 
     if (moves=="clockwise" and drone.is_flying==True):
         drone.send_rc_control(0,0,0,angularSpeedObjects)
-        rotate += angularInterval
+        #rotate += angularInterval
 
     if (moves=="back" and drone.is_flying==True):
         drone.send_rc_control(0,-speedObjects,0,0)
-        distanceObjects = -distanceInterval
-        angle = -90
+        #distanceObjects = -distanceInterval
+        #angle = -90
 
     if(moves=="forward" and drone.is_flying==True):
         drone.send_rc_control(0,speedObjects,0,0)
-        distanceObjects = distanceInterval
-        angle = 270
+        #distanceObjects = distanceInterval
+        #angle = 270
 
     if(moves=="down" and drone.is_flying==True):
         drone.send_rc_control(0,0,-speedObjects,0)
@@ -327,11 +333,13 @@ def moveSurveyObjects():
             
         else:
             drone.land()
-    
-    sleep(interval)
+    '''
+    #sleep(interval)
     angle += rotate
     x_pos += (int(distanceObjects*math.cos(math.radians(angle))))/100
     y_pos += (int(distanceObjects*math.sin(math.radians(angle))))/100
+    '''
+    
    
     
 def imagingNormal():
@@ -341,7 +349,20 @@ def imagingNormal():
     cv2.waitKey(1)
 
 def imagingGreen():
-   
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img, (frameWidth, frameHeight))
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower = np.array([29, 45, 0])
+    upper = np.array([72, 255, 255])
+    mask = cv2.inRange(imgHsv, lower, upper)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    hStack = np.hstack([img, mask, result])
+    cv2.imshow('Horizontal Stacking', hStack)
+    cv2.waitKey(1)
+
+'''
+
     img = drone.get_frame_read().frame
    
     img = cv2.resize(img,(720,480))
@@ -354,6 +375,8 @@ def imagingGreen():
     cv2.imshow("Footage",img)
     cv2.imshow("Green Mask",green)
     cv2.waitKey(1)  
+
+    '''
 def imagingBlack():
     
     img = drone.get_frame_read().frame
@@ -594,11 +617,6 @@ def surveyObjects():
     classFile = "coco.names"
     with open(classFile,"rt") as f:
         classNames = f.read().split('\n')
-    #COME BACK HERE
-
-    
-    #Dont forget to download coco file
-
     configPath = "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
     weightPath = "frozen_inference_graph.pb"
     net = cv2.dnn_DetectionModel(weightPath,configPath)
@@ -615,9 +633,9 @@ def surveyObjects():
             for classId, conf, box in zip(classIds.flatten(),confs.flatten(),bbox):
                 cvz.cornerRect(img,box)
                 cv2.putText(img, f"{classNames[classId-1].upper()}{round(conf*100,2)}",
-                (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,1(0,255,0),2)
-                #not sure about the following lines, may need to comment out first 
-                objectsList.append(f"{classNames[classId-1].upper()} | {x_pos} | {y_pos} | {drone.get_height()} | {drone.get_flight_time()}")
+                            (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                            1,(0,255,0),2)
+                objectsList.append(f"{classNames[classId-1].upper()} | {drone.get_flight_time()}")
         except:
             pass
 
