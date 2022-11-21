@@ -1,8 +1,12 @@
-import numpy as np
-
 from djitellopy import tello
 
 import cv2
+
+import numpy as np
+
+frameWidth = 480
+
+frameHeight = 360
 
 me = tello.Tello()
 
@@ -12,69 +16,74 @@ print(me.get_battery())
 
 me.streamon()
 
-#me.takeoff()
+def empty(a):
 
-cap = cv2.VideoCapture(1)
+    pass
 
-hsvVals = [0,0,188,179,33,245]
+cv2.namedWindow("HSV")
 
-sensors = 3
+cv2.resizeWindow("HSV", 640, 240)
 
-threshold = 0.2
+cv2.createTrackbar("HUE Min", "HSV", 0, 179, empty)
 
-width, height = 480, 360
+cv2.createTrackbar("HUE Max", "HSV", 179, 179, empty)
 
-def thresholding(img):
+cv2.createTrackbar("SAT Min", "HSV", 0, 255, empty)
 
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+cv2.createTrackbar("SAT Max", "HSV", 255, 255, empty)
 
-    lower = np.array([hsvVals[0], hsvVals[1], hsvVals[2]])
+cv2.createTrackbar("VALUE Min", "HSV", 0, 255, empty)
 
-    upper = np.array([hsvVals[3], hsvVals[4], hsvVals[5]])
+cv2.createTrackbar("VALUE Max","HSV", 255, 255, empty)
 
-    mask = cv2.inRange(hsv, lower, upper)
+#cap = cv2.VideoCapture(1)
 
-    return mask
-
-def getContours(imgThres, img):
-
-    cx = 0
-
-    contours, hieracrhy = cv2.findContours(imgThres, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-    if len(contours) != 0:
-
-        biggest = max(contours, key=cv2.contourArea)
-
-        x, y, w, h = cv2.boundingRect(biggest)
-
-        cx = x + w // 2
-
-        cy = y + h // 2
-
-        cv2.drawContours(img, biggest, -1, (255, 0, 255), 7)
-
-        cv2.circle(img, (cx, cy), 10, (0, 255, 0), cv2.FILLED)
-
-    return cx
-
+frameCounter = 0
 
 while True:
 
-    #_, img = cap.read()
-
     img = me.get_frame_read().frame
 
-    img = cv2.resize(img, (width, height))
+    #_, img = cap.read()
 
-    img = cv2.flip(img, 0)
+    img = cv2.resize(img, (frameWidth, frameHeight))
 
-    imgThres = thresholding(img)
+    img = cv2.flip(img,0)
 
-    cx = getContours(imgThres, img)  ## For Translation
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    cv2.imshow("Output", img)
+    h_min = cv2.getTrackbarPos("HUE Min", "HSV")
 
-    cv2.imshow("Path", imgThres)
+    h_max = cv2.getTrackbarPos("HUE Max", "HSV")
 
-    cv2.waitKey(1)
+    s_min = cv2.getTrackbarPos("SAT Min","HSV")
+
+    s_max = cv2.getTrackbarPos("SAT Max", "HSV")
+
+    v_min = cv2.getTrackbarPos("VALUE Min", "HSV")
+
+    v_max = cv2.getTrackbarPos("VALUE Max", "HSV")
+
+    lower = np.array([h_min, s_min, v_min])
+
+    upper = np.array([h_max, s_max, v_max])
+
+    mask = cv2.inRange(imgHsv, lower, upper)
+
+    result = cv2.bitwise_and(img, img, mask=mask)
+
+    print(f'[{h_min},{s_min},{v_min},{h_max},{s_max},{v_max}]')
+
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+
+    hStack = np.hstack([img, mask, result])
+
+    cv2.imshow('Horizontal Stacking', hStack)
+
+    if cv2.waitKey(1) and 0xFF == ord('q'):
+
+        break
+
+# cap.release()
+# 
+# cv2.destroyAllWindows()
