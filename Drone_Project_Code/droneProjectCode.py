@@ -25,7 +25,7 @@ mode = "standby"
 ###########################################################
 #object surveiallnce variables
 x_pos, y_pos, x_home, y_home = 0,0,0,0
-speedObjects = 50# 117/10  #cm/s
+speedObjects = 30
 angularSpeedObjects = 50 #degrees/s
 interval = 0.25
 rotate = 0
@@ -285,61 +285,97 @@ def moveVegetation():
     
 
 def moveSurveyObjects():
-    #global rotate, x_pos, y_pos,angle
-    #distanceObjects = 0
-       
+
     moves = listen()
 
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-speedObjects,0,0,0)
-        #distanceObjects = distanceInterval
-        #angle = -180
 
-    if(moves=="right" and drone.is_flying==True):
+    elif(moves=="right" and drone.is_flying==True):
         drone.send_rc_control(speedObjects,0,0,0)
-        #distanceObjects = -distanceInterval
-        #angle = 180
-
-    if(moves=="antiClockwise" and drone.is_flying==True):
+        
+    elif(moves=="antiClockwise" and drone.is_flying==True):
         drone.send_rc_control(0,0,0,-angularSpeedObjects)
-        #rotate -= angularInterval
-
-    if (moves=="clockwise" and drone.is_flying==True):
+       
+    elif(moves=="clockwise" and drone.is_flying==True):
         drone.send_rc_control(0,0,0,angularSpeedObjects)
-        #rotate += angularInterval
-
-    if (moves=="back" and drone.is_flying==True):
+        
+    elif (moves=="back" and drone.is_flying==True):
         drone.send_rc_control(0,-speedObjects,0,0)
-        #distanceObjects = -distanceInterval
-        #angle = -90
 
-    if(moves=="forward" and drone.is_flying==True):
+    elif(moves=="forward" and drone.is_flying==True):
         drone.send_rc_control(0,speedObjects,0,0)
-        #distanceObjects = distanceInterval
-        #angle = 270
-
-    if(moves=="down" and drone.is_flying==True):
+    
+    elif(moves=="down" and drone.is_flying==True):
         drone.send_rc_control(0,0,-speedObjects,0)
 
-    if(moves=="up" and drone.is_flying==True):
+    elif(moves=="up" and drone.is_flying==True):
         drone.send_rc_control(0,0,speedObjects,0)
 
-    if(moves=="takePic"):
+    elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
 
-    if(moves=="landTakeoff"):
+    elif(moves=="landTakeoff"):
         if(drone.is_flying==False):
             drone.takeoff()
             
         else:
             drone.land()
-    '''
-    #sleep(interval)
-    angle += rotate
-    x_pos += (int(distanceObjects*math.cos(math.radians(angle))))/100
-    y_pos += (int(distanceObjects*math.sin(math.radians(angle))))/100
-    '''
+
+    elif(moves=="standby"):
+        drone.land()
+        mode = "standby"
+        gui()
     
+    else:
+        pass
+
+def move_track():
+
+    moves = listen()
+
+    if (moves=="left" and drone.is_flying==True):
+        drone.send_rc_control(-speedObjects,0,0,0)
+
+    elif(moves=="right" and drone.is_flying==True):
+        drone.send_rc_control(speedObjects,0,0,0)
+        
+    elif(moves=="antiClockwise" and drone.is_flying==True):
+        drone.send_rc_control(0,0,0,-angularSpeedObjects)
+       
+    elif(moves=="clockwise" and drone.is_flying==True):
+        drone.send_rc_control(0,0,0,angularSpeedObjects)
+        
+    elif (moves=="back" and drone.is_flying==True):
+        drone.send_rc_control(0,-speedObjects,0,0)
+
+    elif(moves=="forward" and drone.is_flying==True):
+        drone.send_rc_control(0,speedObjects,0,0)
+    
+    elif(moves=="down" and drone.is_flying==True):
+        drone.send_rc_control(0,0,-speedObjects,0)
+
+    elif(moves=="up" and drone.is_flying==True):
+        drone.send_rc_control(0,0,speedObjects,0)
+
+    elif(moves=="takePic"):
+        cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+
+    elif(moves=="landTakeoff"):
+        if(drone.is_flying==False):
+            drone.takeoff()
+            
+        else:
+            drone.land()
+
+    elif(moves=="standby"):
+        drone.land()
+        mode = "standby"
+        gui()
+    
+    else:
+        pass
+
    
     
 def imagingNormal():
@@ -609,10 +645,7 @@ def surveyObjects():
     nmsthreshold = 0.2
     mode = "surveyObjects"
     
-    if(drone.is_flying==False):
-        drone.takeoff()
-    else:
-        pass
+    
     classNames = [] #use classID on excel
     classFile = "coco.names"
     with open(classFile,"rt") as f:
@@ -625,23 +658,24 @@ def surveyObjects():
     net.setInputMean((127.5,127.5,127.5))
     net.setInputSwapRB(True)
 
-    while (mode=="surveyObjects"):
+    while mode == "surveyObjects":
+    # success, img = cap.read()
         moveSurveyObjects()
-        img = drone.get_frame_read().frame
-        classIds, confs, bbox = net.detect(img, confThreshold=threshold, nmsThreshold=nmsthreshold)
+        img = me.get_frame_read().frame
+        classIds, confs, bbox = net.detect(img, confThreshold=thres, nmsThreshold=nmsThres)
         try:
-            for classId, conf, box in zip(classIds.flatten(),confs.flatten(),bbox):
-                cvz.cornerRect(img,box)
-                cv2.putText(img, f"{classNames[classId-1].upper()}{round(conf*100,2)}",
-                            (box[0]+10,box[1]+30),cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                            1,(0,255,0),2)
+            for classId, conf, box in zip(classIds.flatten(), confs.flatten(), bbox):
+                cvzone.cornerRect(img, box)
+                cv2.putText(img, f'{classNames[classId - 1].upper()} {round(conf * 100, 2)}',
+                            (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                            1, (0, 255, 0), 2)
                 objectsList.append(f"{classNames[classId-1].upper()} | {drone.get_flight_time()}")
         except:
             pass
 
-        #drone.send_keepalive()
-        cv2.imshow("Footage",img)
-        cv2.waitKey(1)
+    cv2.imshow("Image", img)
+    cv2.waitKey(1)
+        
         
 def surveyParking():
     pass
