@@ -129,13 +129,13 @@ void surveillanceMoves(){
         notify();
     }
     if(Yval2<50){
-        //tell pyton to move down
-        talk("down");
+        //tell pyton to move up
+        talk("up");
         notify();
     }
     if(Yval2>900){
-        //tell python to move up
-        talk("up");
+        //tell python to move down
+        talk("down");
         notify();
     }
     if(Bval1==1 & Bval2==1){

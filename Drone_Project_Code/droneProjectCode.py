@@ -44,7 +44,7 @@ drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
 
-arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
+arduino_data=serial.Serial("com5",baudrate = 9600, timeout=1)
 
 
 #communication function
@@ -516,8 +516,10 @@ def mode1Win(): #read database
     top.mainloop() 
 
 def mode2Win(): #tracking
+    root.destroy()
     top = Toplevel()
     top.title("Tracking Mode")
+    '''
     obejectSet = []
     for i in objectsList:
         if i not in obejectSet:
@@ -525,10 +527,12 @@ def mode2Win(): #tracking
     #fucntion to destroy windows 
     def home():
         top.destroy()
+        '''
     #styling the entire GUI
     canvastop = tk.Canvas(top, height=500, width=500)
     frametop = tk.Frame(top, bg="#1bcfa8")
     frametop.place(relwidth=1,relheight=1)
+    '''
    #select menu for objects to track
     global userObject
     userObject = StringVar()
@@ -540,33 +544,40 @@ def mode2Win(): #tracking
     def haltTracking():
         userObject.set("Please Select Object To Track")
         messagebox.showinfo("Halt Tracking", f"Drone Is No loner Tracking Object Listed as PlaceHolder")
+        '''
 
-    #Parking
-    btn_track = tk.Button(top, text="Click To Track", bg="yellow", command=track)
+    #red car
+    btn_track = tk.Button(top, text="Red Car", bg="yellow", command=track)
     btn_track['font'] = myFont2
-    btn_track.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
+    btn_track.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
     #btn_database.bind("<Button-1>",read_database)
 
-    #Defensive
-    btn_defensive2 = tk.Button(top, text="Defensive", bg="#80c1ff", command=defend)
+    #yellow car
+    btn_defensive2 = tk.Button(top, text="Yellow Car", bg="#80c1ff", command=defend)
     btn_defensive2['font'] = myFont2
-    btn_defensive2.place(relx=0, rely=0.3, relwidth=1, relheight=0.2)
+    btn_defensive2.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #btn_tracking.bind("<Button-1>",tracking_mode)
 
-    #home
-    btn_home = tk.Button(top, text="Main Menu", bg="violet", command=home)
+    #white car
+    btn_home = tk.Button(top, text="White Car", bg="violet", command=home)
     btn_home["font"] = myFont2
-    btn_home.place(relx=0,rely=0.6,relwidth=1,relheight=0.15)
+    btn_home.place(relx=0,rely=0.4,relwidth=0.5,relheight=0.2)
     #btn_home.bind("<Button-1>",home)
 
-    #haltTracking
-    btn_haltTracking = tk.Button(top, text = "HALT TRACKING", bg="red", command=haltTracking)
+    #blue car
+    btn_haltTracking = tk.Button(top, text = "Blue Car", bg="red", command=haltTracking)
     btn_haltTracking['font'] = myFont2
-    btn_haltTracking.place(relx=0, rely=0.85, relwidth=1, relheight=0.15)
+    btn_haltTracking.place(relx=0.5, rely=0.4, relwidth=0.5, relheight=0.2)
     #btn_haltTracking.bind("<Button-1>",haltTracking)
+
+    #vegetation
+    btn_vegetation = tk.Button(top, text = "Vegetatiin", bg="lime", command=haltTracking)
+    btn_vegetation['font'] = myFont2
+    btn_vegetation.place(relx=0, rely=0.6, relwidth=1, relheight=0.2)
 
     top.attributes("-fullscreen", True)
     top.mainloop()
+
 def mode3Win(): #defensive mode
     top = Toplevel()
     lb3 = Label(top, text="Mode 3").pack()
@@ -729,7 +740,7 @@ def gui():
     btn_surveillance = tk.Button(root, text="Surveillance", bg="lime")
     btn_surveillance['font'] = myFont1
     btn_surveillance.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
-    btn_surveillance.bind("<Button-1>",surveillance_mode)
+    btn_surveillance.bind("<Button-1>",surveyObjects)
 
     #Database Mode
     btn_database = tk.Button(root, text="Database", bg="yellow")
