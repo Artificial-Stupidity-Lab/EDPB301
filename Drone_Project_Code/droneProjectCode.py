@@ -126,9 +126,11 @@ def flight_mode(): #mode5
     if (mode=="flight"):
         while mode=="flight":
             #tello(drone) librar
+            imagingNormal()
             move()
     mode="standby"
     drone.streamoff()
+    gui()
     
     
         
@@ -230,13 +232,13 @@ def move():
     elif(moves=="standby"):
         drone.land()
         mode = "standby"
-        gui()
+        
 
     else:
         pass
 
     #sleep(0.05)
-    imagingNormal()
+    
 
 def moveVegetation():
     moves = listen()
@@ -429,7 +431,7 @@ def imagingBlack():
 
 
 
-
+'''
 #functions for different modes
 def mode0Win(): #surveillance
     root.destroy()
@@ -483,6 +485,7 @@ def mode0Win(): #surveillance
 
     top.attributes("-fullscreen", True)
     top.mainloop()
+    '''
 
 def mode1Win(): #read database
     top = Toplevel()
@@ -517,8 +520,9 @@ def mode1Win(): #read database
 
 def mode2Win(): #tracking
     root.destroy()
-    top = Toplevel()
-    top.title("Tracking Mode")
+    global top_tracking
+    top_tracking = Toplevel()
+    top_tracking.title("Tracking Mode")
     '''
     obejectSet = []
     for i in objectsList:
@@ -529,8 +533,8 @@ def mode2Win(): #tracking
         top.destroy()
         '''
     #styling the entire GUI
-    canvastop = tk.Canvas(top, height=500, width=500)
-    frametop = tk.Frame(top, bg="#1bcfa8")
+    canvastop = tk.Canvas(top_tracking, height=500, width=500)
+    frametop = tk.Frame(top_tracking, bg="#1bcfa8")
     frametop.place(relwidth=1,relheight=1)
     '''
    #select menu for objects to track
@@ -547,37 +551,108 @@ def mode2Win(): #tracking
         '''
 
     #red car
-    btn_track = tk.Button(top, text="Red Car", bg="yellow", command=track)
-    btn_track['font'] = myFont2
-    btn_track.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
+    btn_redcar = tk.Button(top_tracking, text="Red Car", bg="yellow", command=track)
+    btn_redcar['font'] = myFont2
+    btn_redcar.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
     #btn_database.bind("<Button-1>",read_database)
 
     #yellow car
-    btn_defensive2 = tk.Button(top, text="Yellow Car", bg="#80c1ff", command=defend)
-    btn_defensive2['font'] = myFont2
-    btn_defensive2.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
+    btn_yellowCar = tk.Button(top_tracking, text="Yellow Car", bg="#80c1ff", command=defend)
+    btn_yellowCar['font'] = myFont2
+    btn_yellowCar.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #btn_tracking.bind("<Button-1>",tracking_mode)
 
     #white car
-    btn_home = tk.Button(top, text="White Car", bg="violet", command=home)
-    btn_home["font"] = myFont2
-    btn_home.place(relx=0,rely=0.4,relwidth=0.5,relheight=0.2)
+    btn_whiteCar = tk.Button(top_tracking, text="White Car", bg="violet", command=home)
+    btn_whiteCar["font"] = myFont2
+    btn_whiteCar.place(relx=0,rely=0.4,relwidth=0.5,relheight=0.2)
     #btn_home.bind("<Button-1>",home)
 
     #blue car
-    btn_haltTracking = tk.Button(top, text = "Blue Car", bg="red", command=haltTracking)
-    btn_haltTracking['font'] = myFont2
-    btn_haltTracking.place(relx=0.5, rely=0.4, relwidth=0.5, relheight=0.2)
+    btn_blueCar = tk.Button(top_tracking, text = "Blue Car", bg="red", command=haltTracking)
+    btn_blueCar['font'] = myFont2
+    btn_blueCar.place(relx=0.5, rely=0.4, relwidth=0.5, relheight=0.2)
     #btn_haltTracking.bind("<Button-1>",haltTracking)
 
     #vegetation
-    btn_vegetation = tk.Button(top, text = "Vegetatiin", bg="lime", command=haltTracking)
+    btn_vegetation = tk.Button(top_tracking, text = "Vegetation", bg="lime", command=haltTracking)
     btn_vegetation['font'] = myFont2
     btn_vegetation.place(relx=0, rely=0.6, relwidth=1, relheight=0.2)
 
     top.attributes("-fullscreen", True)
     top.mainloop()
 
+#tracking mode functions
+def RedCar():
+    mode = 'RedCar'
+    top_tracking.destroy()
+    while mode == "RedCar":
+        imagingRed()
+        move()
+    #leaving while loop
+    drone.streamoff()
+    gui()
+    
+def YellowCar():
+    mode = 'YellowCar'
+    top_tracking.destroy()
+    while mode == "YellowCar":
+        imagingYellow()
+        move()
+    #leaving while loop
+    drone.streamoff()
+    gui()
+    
+def WhiteCar():
+    mode = 'WhiteCar'
+    top_tracking.destroy()
+    while mode == "WhiteCar":
+        imagingWhite()
+        move()
+    #leaving while loop
+    drone.streamoff()
+    gui()
+    
+def BlueCar():
+    mode = 'BlueCar'
+    top_tracking.destroy()
+    while mode == "BlueCar":
+        imagingBlue()
+        move()
+    #leaving while loop
+    drone.streamoff()
+    gui()
+    
+def Vegetation():
+    mode = 'Vegetation'
+    top_tracking.destroy()
+    while mode == "Vegetation":
+        imagingVegetation()
+        move()
+    #leaving while loop
+    drone.streamoff()
+    gui()
+    
+#functions for imaging the above
+ def imagingRed():
+        
+        
+ def imagingYellow():
+    
+    
+ def imagingWhite():
+    
+    
+ def imagingBlue():
+    
+    
+ def imagingVegetation():
+    
+        
+
+    
+    
+    
 def mode3Win(): #defensive mode
     top = Toplevel()
     lb3 = Label(top, text="Mode 3").pack()
