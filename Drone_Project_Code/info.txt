@@ -1,0 +1,17 @@
+buttons on main gui:
+    surveyllance mode - done
+    database - done
+    survey veg - done
+    tracking - done
+    battery  - done
+    standard flight - done
+    estop - done
+
+sureveillance mode
+    used
+    surveyObjects()
+    tracks objects
+
+tracking mode
+    mode2Win
+    tracks cars and vegetation

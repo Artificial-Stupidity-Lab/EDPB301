@@ -44,7 +44,7 @@ drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
 
-arduino_data=serial.Serial("com5",baudrate = 9600, timeout=1)
+arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
 
 
 #communication function
@@ -283,7 +283,7 @@ def moveVegetation():
         pass
 
     #sleep(0.05)
-    imagingGreen()
+    
     
 
 def moveSurveyObjects():
@@ -551,33 +551,28 @@ def mode2Win(): #tracking
         '''
 
     #red car
-    btn_redcar = tk.Button(top_tracking, text="Red Car", bg="yellow", command=track)
+    btn_redcar = tk.Button(top_tracking, text="Red Car", bg="yellow", command=RedCar)
     btn_redcar['font'] = myFont2
     btn_redcar.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
     #btn_database.bind("<Button-1>",read_database)
 
     #yellow car
-    btn_yellowCar = tk.Button(top_tracking, text="Yellow Car", bg="#80c1ff", command=defend)
+    btn_yellowCar = tk.Button(top_tracking, text="Yellow Car", bg="#80c1ff", command=YellowCar)
     btn_yellowCar['font'] = myFont2
     btn_yellowCar.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #btn_tracking.bind("<Button-1>",tracking_mode)
 
     #white car
-    btn_whiteCar = tk.Button(top_tracking, text="White Car", bg="violet", command=home)
+    btn_whiteCar = tk.Button(top_tracking, text="White Car", bg="violet", command=WhiteCar)
     btn_whiteCar["font"] = myFont2
     btn_whiteCar.place(relx=0,rely=0.4,relwidth=0.5,relheight=0.2)
     #btn_home.bind("<Button-1>",home)
 
     #blue car
-    btn_blueCar = tk.Button(top_tracking, text = "Blue Car", bg="red", command=haltTracking)
+    btn_blueCar = tk.Button(top_tracking, text = "Blue Car", bg="red", command=BlueCar())
     btn_blueCar['font'] = myFont2
     btn_blueCar.place(relx=0.5, rely=0.4, relwidth=0.5, relheight=0.2)
     #btn_haltTracking.bind("<Button-1>",haltTracking)
-
-    #vegetation
-    btn_vegetation = tk.Button(top_tracking, text = "Vegetation", bg="lime", command=haltTracking)
-    btn_vegetation['font'] = myFont2
-    btn_vegetation.place(relx=0, rely=0.6, relwidth=1, relheight=0.2)
 
     top.attributes("-fullscreen", True)
     top.mainloop()
@@ -634,20 +629,73 @@ def Vegetation():
     gui()
     
 #functions for imaging the above
- def imagingRed():
-        
-        
- def imagingYellow():
+
+def imagingRed():
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img, (frameWidth, frameHeight))
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower = np.array([0, 0, 0])
+    upper = np.array([10, 255, 255])
+    mask = cv2.inRange(imgHsv, lower, upper)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    hStack = np.hstack([img, mask, result])
+    cv2.imshow('Horizontal Stacking', hStack)
+    cv2.waitKey(1)
+
+def imagingYellow():
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img, (frameWidth, frameHeight))
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower = np.array([29, 93, 52])
+    upper = np.array([180, 104, 255])
+    mask = cv2.inRange(imgHsv, lower, upper)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    hStack = np.hstack([img, mask, result])
+    cv2.imshow('Horizontal Stacking', hStack)
+    cv2.waitKey(1)
+    
+def imagingWhite():
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img, (frameWidth, frameHeight))
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower = np.array([0, 0, 117])
+    upper = np.array([179, 22, 219])
+    mask = cv2.inRange(imgHsv, lower, upper)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    hStack = np.hstack([img, mask, result])
+    cv2.imshow('Horizontal Stacking', hStack)
+    cv2.waitKey(1)
     
     
- def imagingWhite():
+def imagingBlue():
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img, (frameWidth, frameHeight))
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower = np.array([93, 60, 0])
+    upper = np.array([128, 255, 255])
+    mask = cv2.inRange(imgHsv, lower, upper)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    hStack = np.hstack([img, mask, result])
+    cv2.imshow('Horizontal Stacking', hStack)
+    cv2.waitKey(1)
     
-    
- def imagingBlue():
-    
-    
- def imagingVegetation():
-    
+def imagingVegetation():
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img, (frameWidth, frameHeight))
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower = np.array([60, 47, 51])
+    upper = np.array([86, 251, 255])
+    mask = cv2.inRange(imgHsv, lower, upper)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    hStack = np.hstack([img, mask, result])
+    cv2.imshow('Horizontal Stacking', hStack)
+    cv2.waitKey(1)
+ 
         
 
     
@@ -723,7 +771,8 @@ def track():
 
 #different types of sureveillance mode
 def surveyObjects():
-    top_mod0.destroy()
+    root.destroy()
+    #top_mod0.destroy()
     
     
     #remember to save data in list as well
@@ -759,19 +808,22 @@ def surveyObjects():
         except:
             pass
 
-    cv2.imshow("Image", img)
-    cv2.waitKey(1)
-        
+        cv2.imshow("Image", img)
+        cv2.waitKey(1)
+    mode = "standby"
+    gui()
         
 def surveyParking():
     pass
 def surveyVegetation():
-    top_mod0.destroy()
+    root.destroy()
     mode = "surveyVegetation"
     while (mode=="surveyVegetation"):
-        moveVegetation()
+        imagingVegetation()
+        move()
     mode="standby"
     drone.streamoff()
+    gui()
 
 def surveyRoad():
     pass
@@ -823,17 +875,17 @@ def gui():
     btn_database.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     btn_database.bind("<Button-1>",read_database)
 
-    #Defensive Mode
-    btn_defensive = tk.Button(root, text="Defensive", bg="orange")
-    btn_defensive['font'] = myFont1
-    btn_defensive.place(relx=0, rely=0.3, relwidth=0.5, relheight=0.2)
-    btn_defensive.bind("<Button-1>",defensive_mode)
+    #Survey Veg Mode
+    btn_surveyVeg = tk.Button(root, text="Survey Vegetation", bg="orange")
+    btn_surveyVeg['font'] = myFont1
+    btn_surveyVeg.place(relx=0, rely=0.3, relwidth=0.5, relheight=0.2)
+    btn_surveyVeg.bind("<Button-1>",surveyVegetation)
 
     #Tracking Mode
-    btn_tracking = tk.Button(root, text="Tracking", bg="#80c1ff")
-    btn_tracking['font'] = myFont1
-    btn_tracking.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
-    btn_tracking.bind("<Button-1>",tracking_mode)
+    btn_trackingV = tk.Button(root, text="Track Vehicles", bg="#80c1ff")
+    btn_trackingV['font'] = myFont1
+    btn_trackingV.place(relx=0.5, rely=0.3, relwidth=0.5, relheight=0.2)
+    btn_trackingV.bind("<Button-1>",tracking_mode)
 
     #Battery
     btn_battery = tk.Button(root, text="Get Battery", bg="violet")
