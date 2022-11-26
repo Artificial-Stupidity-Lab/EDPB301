@@ -15,6 +15,7 @@ import cv2
 import cvzone as cvz
 import numpy as np
 import serial as serial
+global img
 
 ###########################################################
 #drone Variable
@@ -220,6 +221,7 @@ def move():
         drone.send_rc_control(0, 0, 0, 0)
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+        time.sleep(1)
 
     elif(moves=="landTakeoff"):
         if(drone.is_flying==False):
@@ -265,6 +267,7 @@ def moveVegetation():
         drone.send_rc_control(0, 0, 0, 0)
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+        time.sleep(1)
 
     elif(moves=="landTakeoff"):
         if(drone.is_flying==False):
@@ -316,6 +319,7 @@ def moveSurveyObjects():
 
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+        time.sleep(1)
 
     elif(moves=="landTakeoff"):
         if(drone.is_flying==False):
@@ -362,6 +366,7 @@ def move_track():
 
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+        time.sleep(1)
 
     elif(moves=="landTakeoff"):
         if(drone.is_flying==False):
@@ -381,12 +386,14 @@ def move_track():
    
     
 def imagingNormal():
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img,(720,480))
     cv2.imshow("Footage",img)
     cv2.waitKey(1)
 
 def imagingGreen():
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -416,7 +423,7 @@ def imagingGreen():
 
     '''
 def imagingBlack():
-    
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img,(720,480))
     hsv_frame = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
@@ -569,7 +576,7 @@ def mode2Win(): #tracking
     #btn_home.bind("<Button-1>",home)
 
     #blue car
-    btn_blueCar = tk.Button(top_tracking, text = "Blue Car", bg="red", command=BlueCar())
+    btn_blueCar = tk.Button(top_tracking, text = "Blue Car", bg="red", command=BlueCar)
     btn_blueCar['font'] = myFont2
     btn_blueCar.place(relx=0.5, rely=0.4, relwidth=0.5, relheight=0.2)
     #btn_haltTracking.bind("<Button-1>",haltTracking)

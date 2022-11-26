@@ -2,6 +2,7 @@ buttons on main gui:
     surveyllance mode - done
     database - done
     survey veg - done
+    survey cars - fixing
     tracking - done
     battery  - done
     standard flight - done
