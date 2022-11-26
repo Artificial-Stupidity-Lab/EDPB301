@@ -804,6 +804,7 @@ def surveyObjects():
                 cv2.putText(img, f'{classNames[classId - 1].upper()} {round(conf * 100, 2)}',
                             (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                             1, (0, 255, 0), 2)
+                cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
                 objectsList.append(f"{classNames[classId-1].upper()} | {drone.get_flight_time()}")
         except:
             pass
