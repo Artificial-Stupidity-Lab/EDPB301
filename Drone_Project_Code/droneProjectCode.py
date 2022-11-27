@@ -4,6 +4,7 @@ import time
 from time import sleep
 import random
 import math
+import csv
 #tkinter(GUI) libraries
 from tkinter import *
 import tkinter as tk
@@ -14,6 +15,7 @@ from tkinter import filedialog as fd
 import cv2
 import cvzone as cvz
 import numpy as np
+import pandas as pd
 import serial as serial
 global img
 
@@ -106,7 +108,10 @@ def surveillance_mode(event): #mode0
 
 def read_database(event):#mod1
     print("\nEntering Database Mode")
-    mode1Win()
+    root.destroy()
+    database = pd.read_csv("C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv")
+    print("Here is the Database :\n")
+    print(database)
     #open data base
 
 def tracking_mode(event):#mode2
@@ -271,7 +276,6 @@ def moveSurveyObjects():
 
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
-        objectsList.append(f"{classNames[classId-1].upper()} | {drone.get_flight_time()}")
         time.sleep(1)
     
 
@@ -596,7 +600,10 @@ def surveyObjects(event):
                     cv2.putText(img, f'Person {round(conf * 100, 2)}%',
                                 (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                 1, (0, 255, 0), 2)
-                    cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+                    global clock
+                    clock = time.time()
+                    cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{clock}.jpg",img)
+                    add_data()
                     time.sleep(1)
                 else:
                     pass
@@ -610,24 +617,19 @@ def surveyObjects(event):
         
     mode = "standby"
 
-def halt_survey():
-    mode = "standby"
-    pass
-
-#database functions
-def clearDatabase():
-    #function to clear database, clear the list as well
-    del objectsList[2:]
-    messagebox.showinfo("Database", f"All data in the database has been cleared")
-#functions to write/read data file
-def exportData():
+def add_data():
+    # Dictionary that we want to add as a new row
+    data = {'Flight Time': drone.get_flight_time(),
+            'Real time': f"{clock}",
+            'Picture File Path': f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{clock}.jpg"
+            }
+    df = pd.DataFrame(data)
+    # append data frame to CSV file
+    df.to_csv('"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"', mode='a', index=False, header=False)
     
-    filename = "C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"
-    # create a file handler 'fn'
-    fh = open(filename, "w") # open filename in write mode
-    fh.write(objectsList)
-    # close the file
-    fh.close()
+    # print message
+    print("Data appended successfully.")
+
 
 
 
@@ -651,7 +653,7 @@ btn_surveillance.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
 btn_surveillance.bind("<Button-1>",surveyObjects)
 
 #Database Mode
-btn_database = tk.Button(root, text="Database", bg="yellow")
+btn_database = tk.Button(root, text="View Database", bg="yellow")
 btn_database['font'] = myFont1
 btn_database.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
 btn_database.bind("<Button-1>",read_database)
