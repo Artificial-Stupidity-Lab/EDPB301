@@ -38,8 +38,26 @@ angularInterval = angularSpeedObjects*interval
 frameWidth = 480
 frameHeight = 360
 frameCounter = 0
+
+thres = 0.5
+nmsThres = 0.2
+mode = "surveyObjects"
+
+global classNames
+classNames = [] #use classID on excel
+classFile = "Drone_Project_Code/coco.names"
+with open(classFile,"rt") as f:
+    classNames = f.read().split('\n')
+configPath = "Drone_Project_Code/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
+weightPath = "Drone_Project_Code/frozen_inference_graph.pb"
+net = cv2.dnn_DetectionModel(weightPath,configPath)
+net.setInputSize(320,320)
+net.setInputScale(1.0/127.5)
+net.setInputMean((127.5,127.5,127.5))
+net.setInputSwapRB(True)
 ###########################################################
 #drone communication libraries
+
 
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
@@ -66,7 +84,7 @@ def talk(data):
 #GUI variables
 #objects list needs to be a tuple
 objectsList = ["Please Select Object To Track",
-                "Object | Time",
+                "Object | flight Time | Real Time",
                 "b",
                 "a",
                 "a",
@@ -129,9 +147,9 @@ def flight_mode(): #mode5
             #tello(drone) librar
             imagingNormal()
             move()
+            if mode=="standby":
+                break
     mode="standby"
-    drone.streamoff()
-    gui()
     
     
         
@@ -280,7 +298,6 @@ def moveVegetation():
     elif(moves=="standby"):
         drone.land()
         mode = "standby"
-        gui()
 
     else:
         pass
@@ -319,7 +336,9 @@ def moveSurveyObjects():
 
     elif(moves=="takePic"):
         cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+        objectsList.append(f"{classNames[classId-1].upper()} | {drone.get_flight_time()}")
         time.sleep(1)
+    
 
     elif(moves=="landTakeoff"):
         if(drone.is_flying==False):
@@ -331,7 +350,6 @@ def moveSurveyObjects():
     elif(moves=="standby"):
         drone.land()
         mode = "standby"
-        gui()
     
     else:
         pass
@@ -378,7 +396,6 @@ def move_track():
     elif(moves=="standby"):
         drone.land()
         mode = "standby"
-        gui()
     
     else:
         pass
@@ -406,22 +423,6 @@ def imagingGreen():
     cv2.imshow('Horizontal Stacking', hStack)
     cv2.waitKey(1)
 
-'''
-
-    img = drone.get_frame_read().frame
-   
-    img = cv2.resize(img,(720,480))
-    hsv_frame = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
-    #green mask
-    low_green = np.array([25,52,72])
-    high_green = np.array([102,255,255])
-    green_mask = cv2.inRange(hsv_frame,low_green,high_green)
-    green = cv2.bitwise_and(img,img,mask=green_mask)
-    cv2.imshow("Footage",img)
-    cv2.imshow("Green Mask",green)
-    cv2.waitKey(1)  
-
-    '''
 def imagingBlack():
     global img
     img = drone.get_frame_read().frame
@@ -581,8 +582,8 @@ def mode2Win(): #tracking
     btn_blueCar.place(relx=0.5, rely=0.4, relwidth=0.5, relheight=0.2)
     #btn_haltTracking.bind("<Button-1>",haltTracking)
 
-    top.attributes("-fullscreen", True)
-    top.mainloop()
+    top_tracking.attributes("-fullscreen", True)
+    top_tracking.mainloop()
 
 #tracking mode functions
 def RedCar():
@@ -591,9 +592,9 @@ def RedCar():
     while mode == "RedCar":
         imagingRed()
         move()
+        if mode=="standby":
+            break
     #leaving while loop
-    drone.streamoff()
-    gui()
     
 def YellowCar():
     mode = 'YellowCar'
@@ -601,9 +602,10 @@ def YellowCar():
     while mode == "YellowCar":
         imagingYellow()
         move()
+        if mode=="standby":
+            break
     #leaving while loop
-    drone.streamoff()
-    gui()
+
     
 def WhiteCar():
     mode = 'WhiteCar'
@@ -611,9 +613,9 @@ def WhiteCar():
     while mode == "WhiteCar":
         imagingWhite()
         move()
+        if mode=="standby":
+            break
     #leaving while loop
-    drone.streamoff()
-    gui()
     
 def BlueCar():
     mode = 'BlueCar'
@@ -621,9 +623,10 @@ def BlueCar():
     while mode == "BlueCar":
         imagingBlue()
         move()
+        if mode=="standby":
+            break
     #leaving while loop
-    drone.streamoff()
-    gui()
+    
     
 def Vegetation():
     mode = 'Vegetation'
@@ -632,8 +635,17 @@ def Vegetation():
         imagingVegetation()
         move()
     #leaving while loop
-    drone.streamoff()
-    gui()
+
+def surveyVegetation(event):
+    root.destroy()
+    mode = "surveyVegetation"
+    while (mode=="surveyVegetation"):
+        imagingVegetation()
+        move()
+        if mode=="standby":
+            break
+    mode="standby"
+    
     
 #functions for imaging the above
 
@@ -777,61 +789,43 @@ def track():
     messagebox.showinfo("Tracking Mode",f"Object Located")
 
 #different types of sureveillance mode
-def surveyObjects():
+def surveyObjects(event):
     root.destroy()
     #top_mod0.destroy()
-    
-    
-    #remember to save data in list as well
-    threshold = 0.75
-    nmsthreshold = 0.2
     mode = "surveyObjects"
-    
-    
-    classNames = [] #use classID on excel
-    classFile = "coco.names"
-    with open(classFile,"rt") as f:
-        classNames = f.read().split('\n')
-    configPath = "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
-    weightPath = "frozen_inference_graph.pb"
-    net = cv2.dnn_DetectionModel(weightPath,configPath)
-    net.setInputSize(320,320)
-    net.setInputScale(1.0/127.5)
-    net.setInputMean((127.5,127.5,127.5))
-    net.setInputSwapRB(True)
-
-    while mode == "surveyObjects":
+    #remember to save data in list as well
+    while(mode == "surveyObjects"):
     # success, img = cap.read()
+        global img
         moveSurveyObjects()
-        img = me.get_frame_read().frame
+        img = drone.get_frame_read().frame
         classIds, confs, bbox = net.detect(img, confThreshold=thres, nmsThreshold=nmsThres)
         try:
             for classId, conf, box in zip(classIds.flatten(), confs.flatten(), bbox):
-                cvzone.cornerRect(img, box)
-                cv2.putText(img, f'{classNames[classId - 1].upper()} {round(conf * 100, 2)}',
-                            (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                            1, (0, 255, 0), 2)
-                cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
-                objectsList.append(f"{classNames[classId-1].upper()} | {drone.get_flight_time()}")
+                if (classNames[classId - 1] == "person"):
+                    cvz.cornerRect(img, box)
+                    cv2.putText(img, f'Person {round(conf * 100, 2)}%',
+                                (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                                1, (0, 255, 0), 2)
+                    cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+                    time.sleep(1)
+                else:
+                    pass
         except:
             pass
-
+        
         cv2.imshow("Image", img)
         cv2.waitKey(1)
+        if mode=="standby":
+            break
+        
     mode = "standby"
-    gui()
+
         
 def surveyParking():
     pass
-def surveyVegetation():
-    root.destroy()
-    mode = "surveyVegetation"
-    while (mode=="surveyVegetation"):
-        imagingVegetation()
-        move()
-    mode="standby"
-    drone.streamoff()
-    gui()
+
+    
 
 def surveyRoad():
     pass
@@ -919,5 +913,6 @@ def gui():
     root.mainloop()
 
 #running the gui
-gui()
+if mode=="standby":
+    gui()
 

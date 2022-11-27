@@ -30,16 +30,22 @@ me.takeoff()
 me.move_up(80)
 '''
 
-while mode == "tracking":
+while (True):
     # success, img = cap.read()
     img = me.get_frame_read().frame
     classIds, confs, bbox = net.detect(img, confThreshold=thres, nmsThreshold=nmsThres)
     try:
         for classId, conf, box in zip(classIds.flatten(), confs.flatten(), bbox):
-            cvzone.cornerRect(img, box)
-            cv2.putText(img, f'{classNames[classId - 1].upper()} {round(conf * 100, 2)}',
-                        (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
-                        1, (0, 255, 0), 2)
+            if (classNames[classId - 1] == "person"):
+                cvzone.cornerRect(img, box)
+                cv2.putText(img, f'Person {round(conf * 100, 2)}',
+                            (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                            1, (0, 255, 0), 2)
+                print("person")
+                cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{time.time()}.jpg",img)
+                delay(1)
+            else:
+                pass
     except:
         pass
 
