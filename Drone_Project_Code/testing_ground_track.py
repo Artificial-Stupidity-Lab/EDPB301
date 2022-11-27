@@ -48,7 +48,7 @@ while True:
 
     img = cv2.resize(img, (frameWidth, frameHeight))
 
-    img = cv2.flip(img,0)
+    #img = cv2.flip(img,0)
 
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
