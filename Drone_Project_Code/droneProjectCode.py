@@ -2,8 +2,6 @@
 from djitellopy import tello
 import time
 from time import sleep
-import random
-import math
 import csv
 #tkinter(GUI) libraries
 from tkinter import *
@@ -18,33 +16,26 @@ import numpy as np
 import pandas as pd
 import serial as serial
 global img
-
 ###########################################################
 #drone Variable
 global velocity
 velocity = 30 #standard drone speed
+global angularSpeedObjects
+angularSpeedObjects = 30
 global mode
 mode = "standby"
 ###########################################################
 #object surveiallnce variables
-x_pos, y_pos, x_home, y_home = 0,0,0,0
+flight_time = []
+real_time = []
+picture_path = []
 speedObjects = 30
-angularSpeedObjects = 50 #degrees/s
-interval = 0.25
-rotate = 0
-global angle
-angle = 0
-distanceInterval = speedObjects*interval
-angularInterval = angularSpeedObjects*interval
-
 frameWidth = 480
 frameHeight = 360
 frameCounter = 0
-
-thres = 0.5
+thres = 0.60
 nmsThres = 0.2
 mode = "surveyObjects"
-
 global classNames
 classNames = [] #use classID on excel
 classFile = "Drone_Project_Code/coco.names"
@@ -60,13 +51,13 @@ net.setInputSwapRB(True)
 ###########################################################
 #drone communication libraries
 
-'''
+
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
 
 arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
-'''
+
 
 #communication function
 def listen():
@@ -285,9 +276,11 @@ def moveSurveyObjects():
             
         else:
             drone.land()
+            add_data()
 
     elif(moves=="standby"):
         drone.land()
+        add_data()
         mode = "standby"
     
     else:
@@ -602,9 +595,12 @@ def surveyObjects(event):
                                 1, (0, 255, 0), 2)
                     global clock
                     clock = time.time()
+                    print(f"Object Of Interest Captured at {clock}")
                     cv2.imwrite(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{clock}.jpg",img)
-                    add_data()
-                    time.sleep(1)
+                    flight_time.append(drone.get_flight_time())
+                    real_time.append(clock)
+                    picture_path.append(f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{clock}.jpg")
+                    time.sleep(2)
                 else:
                     pass
         except:
@@ -618,16 +614,10 @@ def surveyObjects(event):
     mode = "standby"
 
 def add_data():
-    # Dictionary that we want to add as a new row
-    data = {'Flight Time': drone.get_flight_time(),
-            'Real time': f"{clock}",
-            'Picture File Path': f"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/{clock}.jpg"
-            }
-    df = pd.DataFrame(data)
-    # append data frame to CSV file
-    df.to_csv('"C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv"', mode='a', index=False, header=False)
-    
-    # print message
+    dict = {"flight_time": flight_time, "real_time": real_time,
+        "picture_path": picture_path}
+    df = pd.DataFrame(dict)
+    df.to_csv("C:/Users/mpilo/OneDrive - Durban University of Technology/Year 3/EDPB/Drone Project/Drone Data/droneData.csv")
     print("Data appended successfully.")
 
 
