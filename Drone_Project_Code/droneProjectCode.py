@@ -51,12 +51,12 @@ net.setInputSwapRB(True)
 ###########################################################
 #drone communication libraries
 
-
+'''
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
 arduino_data=serial.Serial("com5",baudrate = 9600, timeout=1)
-
+'''
 
 #communication function
 def listen():
@@ -415,12 +415,12 @@ def mode2Win(): #tracking
     btn_redcar = tk.Button(top_tracking, text="Red Car", bg="red", command=RedCar)
     btn_redcar['font'] = myFont2
     btn_redcar.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
-    #yellow car
-    btn_yellowCar = tk.Button(top_tracking, text="Yellow Car", bg="yellow", command=YellowCar)
-    btn_yellowCar['font'] = myFont2
-    btn_yellowCar.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
+    #Orange car
+    btn_OrangeCar = tk.Button(top_tracking, text="Orange Car", bg="yellow", command=OrangeCar)
+    btn_OrangeCar['font'] = myFont2
+    btn_OrangeCar.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #white car
-    btn_whiteCar = tk.Button(top_tracking, text="Green Car", bg="green", command=GreenCar)
+    btn_whiteCar = tk.Button(top_tracking, text="White Car", bg="green", command=WhiteCar)
     btn_whiteCar["font"] = myFont2
     btn_whiteCar.place(relx=0,rely=0.4,relwidth=0.5,relheight=0.2)
     #btn_home.bind("<Button-1>",home)
@@ -481,7 +481,27 @@ def BlueCar():
         if mode=="standby":
             break
     #leaving while loop
-    
+
+def WhiteCar():
+    mode = 'WhiteCar'
+    top_tracking.destroy()
+    while mode == "WhiteCar":
+        imagingWhite()
+        move()
+        if mode=="standby":
+            break
+    #leaving while loop
+
+def OrangeCar():
+    mode = 'OrangeCar'
+    top_tracking.destroy()
+    while mode == "OrangeCar":
+        imagingOrange()
+        move()
+        if mode=="standby":
+            break
+    #leaving while loop
+
     
 def Vegetation():
     mode = 'Vegetation'
@@ -583,8 +603,8 @@ def imagingOrange():
     img = drone.get_frame_read().frame
     img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    lower = np.array([29, 116, 64])
-    upper = np.array([92, 255, 231])
+    lower = np.array([11, 213, 90])
+    upper = np.array([18, 255, 255])
     mask = cv2.inRange(imgHsv, lower, upper)
     result = cv2.bitwise_and(img, img, mask=mask)
     mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
