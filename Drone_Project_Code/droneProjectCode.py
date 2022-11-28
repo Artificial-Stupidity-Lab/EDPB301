@@ -508,6 +508,7 @@ def halt_tracking():
 #functions for imaging the above
 
 def imagingRed():
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -521,6 +522,7 @@ def imagingRed():
     cv2.waitKey(1)
 
 def imagingYellow():
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -534,6 +536,7 @@ def imagingYellow():
     cv2.waitKey(1)
     
 def imagingWhite():
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -548,6 +551,7 @@ def imagingWhite():
     
     
 def imagingBlue():
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -561,6 +565,21 @@ def imagingBlue():
     cv2.waitKey(1)
     
 def imagingVegetation():
+    global img
+    img = drone.get_frame_read().frame
+    img = cv2.resize(img, (frameWidth, frameHeight))
+    imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    lower = np.array([29, 116, 64])
+    upper = np.array([92, 255, 231])
+    mask = cv2.inRange(imgHsv, lower, upper)
+    result = cv2.bitwise_and(img, img, mask=mask)
+    mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    hStack = np.hstack([img, mask, result])
+    cv2.imshow('Horizontal Stacking', hStack)
+    cv2.waitKey(1)
+
+def imagingOrange():
+    global img
     img = drone.get_frame_read().frame
     img = cv2.resize(img, (frameWidth, frameHeight))
     imgHsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -582,7 +601,6 @@ def surveyObjects(event):
     while(mode == "surveyObjects"):
     # success, img = cap.read()
         global img
-        moveSurveyObjects()
         img = drone.get_frame_read().frame
         classIds, confs, bbox = net.detect(img, confThreshold=thres, nmsThreshold=nmsThres)
         try:
@@ -607,6 +625,7 @@ def surveyObjects(event):
         
         cv2.imshow("Image", img)
         cv2.waitKey(1)
+        moveSurveyObjects()
         if mode=="standby":
             break
         
