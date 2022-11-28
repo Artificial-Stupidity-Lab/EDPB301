@@ -55,7 +55,7 @@ net.setInputSwapRB(True)
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
-arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
+arduino_data=serial.Serial("com5",baudrate = 9600, timeout=1)
 
 
 #communication function
