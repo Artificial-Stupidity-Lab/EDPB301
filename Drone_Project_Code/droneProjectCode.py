@@ -675,7 +675,7 @@ myFont1 = font.Font(family='Helvetica', size=20, weight='bold')
 
 #buttons for different modes
 #Surveillance Mode
-btn_surveillance = tk.Button(root, text="Surveillance", bg="lime")
+btn_surveillance = tk.Button(root, text="Surveillance Mode", bg="lime")
 btn_surveillance['font'] = myFont1
 btn_surveillance.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
 btn_surveillance.bind("<Button-1>",surveyObjects)
@@ -705,7 +705,7 @@ btn_battery.place(relx=0,rely=0.6,relwidth=0.5,relheight=0.15)
 btn_battery.bind("<Button-1>",get_battery)
 
 #Standard Flight
-btn_flight = tk.Button(root, text="Flight", bg="blue",command=flight_mode)
+btn_flight = tk.Button(root, text="Flight Mode", bg="blue",command=flight_mode)
 btn_flight["font"] = myFont1
 btn_flight.place(relx=0.5,rely=0.6,relwidth=0.5,relheight=0.15)
 #btn_flight.bind("<Button-1>",flight_mode)
