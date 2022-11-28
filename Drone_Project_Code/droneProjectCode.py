@@ -627,7 +627,7 @@ def surveyObjects(event):
             for classId, conf, box in zip(classIds.flatten(), confs.flatten(), bbox):
                 if (classNames[classId - 1] == "person"):
                     cvz.cornerRect(img, box)
-                    cv2.putText(img, f'Person {round(conf * 100, 2)}%',
+                    cv2.putText(img, f'Object of Interest {round(conf * 100, 2)}%',
                                 (box[0] + 10, box[1] + 30), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                 1, (0, 255, 0), 2)
                     global clock
