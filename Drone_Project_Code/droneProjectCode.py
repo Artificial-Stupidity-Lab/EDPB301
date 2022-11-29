@@ -19,9 +19,9 @@ global img
 ###########################################################
 #drone Variable
 global velocity
-velocity = 20 #standard drone speed
+velocity = 25 #standard drone speed
 global angularSpeedObjects
-angularSpeedObjects = 20
+angularSpeedObjects = 25
 global mode
 mode = "standby"
 ###########################################################
@@ -29,11 +29,11 @@ mode = "standby"
 flight_time = []
 real_time = []
 picture_path = []
-speedObjects = 20
+speedObjects = 25
 frameWidth = 480
 frameHeight = 360
 frameCounter = 0
-thres = 0.60
+thres = 0.65
 nmsThres = 0.2
 mode = "surveyObjects"
 global classNames
@@ -146,7 +146,7 @@ def flight_mode(): #mode5
 def move():
     moves = listen()
     print(f"Next move is {moves}")
-    velocity = 20
+    velocity = 25
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-velocity,0,0,0)
     elif(moves=="right" and drone.is_flying==True):
@@ -193,7 +193,7 @@ def move():
 def moveVegetation():
     moves = listen()
     print(f"Next move is {moves}")
-    velocity = 20
+    velocity = 25
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-velocity,0,0,0)
     elif(moves=="right" and drone.is_flying==True):
