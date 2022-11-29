@@ -420,7 +420,7 @@ def mode2Win(): #tracking
     btn_OrangeCar['font'] = myFont2
     btn_OrangeCar.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #white car
-    btn_whiteCar = tk.Button(top_tracking, text="White Car", bg="green", command=WhiteCar)
+    btn_whiteCar = tk.Button(top_tracking, text="White Car", bg="White", command=WhiteCar)
     btn_whiteCar["font"] = myFont2
     btn_whiteCar.place(relx=0,rely=0.4,relwidth=0.5,relheight=0.2)
     #btn_home.bind("<Button-1>",home)
@@ -608,6 +608,7 @@ def surveyObjects(event):
     # success, img = cap.read()
         global img
         img = drone.get_frame_read().frame
+        moveSurveyObjects()
         classIds, confs, bbox = net.detect(img, confThreshold=thres, nmsThreshold=nmsThres)
         try:
             for classId, conf, box in zip(classIds.flatten(), confs.flatten(), bbox):
@@ -631,7 +632,7 @@ def surveyObjects(event):
         
         cv2.imshow("Image", img)
         cv2.waitKey(1)
-        moveSurveyObjects()
+        
     mode = "standby"
 
 def add_data():
