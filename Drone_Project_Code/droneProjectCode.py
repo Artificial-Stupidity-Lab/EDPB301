@@ -19,9 +19,9 @@ global img
 ###########################################################
 #drone Variable
 global velocity
-velocity = 30 #standard drone speed
+velocity = 20 #standard drone speed
 global angularSpeedObjects
-angularSpeedObjects = 30
+angularSpeedObjects = 20
 global mode
 mode = "standby"
 ###########################################################
@@ -29,7 +29,7 @@ mode = "standby"
 flight_time = []
 real_time = []
 picture_path = []
-speedObjects = 30
+speedObjects = 20
 frameWidth = 480
 frameHeight = 360
 frameCounter = 0
@@ -51,12 +51,11 @@ net.setInputSwapRB(True)
 ###########################################################
 #drone communication libraries
 
-'''
 drone = tello.Tello()  #creating an object for the drone
 drone.connect() #communicating with the drone
 drone.streamon()
-arduino_data=serial.Serial("com5",baudrate = 9600, timeout=1)
-'''
+arduino_data=serial.Serial("com3",baudrate = 9600, timeout=1)
+
 
 #communication function
 def listen():
@@ -131,7 +130,7 @@ def flight_mode(): #mode5
     root.destroy()
     mode="flight"
     if (mode=="flight"):
-        while mode=="flight":
+        while(True):
             #tello(drone) librar
             imagingNormal()
             move()
@@ -147,7 +146,7 @@ def flight_mode(): #mode5
 def move():
     moves = listen()
     print(f"Next move is {moves}")
-    velocity = 30
+    velocity = 20
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-velocity,0,0,0)
     elif(moves=="right" and drone.is_flying==True):
@@ -183,6 +182,7 @@ def move():
         drone.land()
         mode = "standby"
         
+        
 
     else:
         pass
@@ -193,7 +193,7 @@ def move():
 def moveVegetation():
     moves = listen()
     print(f"Next move is {moves}")
-    velocity = 30
+    velocity = 20
     if (moves=="left" and drone.is_flying==True):
         drone.send_rc_control(-velocity,0,0,0)
     elif(moves=="right" and drone.is_flying==True):
@@ -416,7 +416,7 @@ def mode2Win(): #tracking
     btn_redcar['font'] = myFont2
     btn_redcar.place(relx=0, rely=0, relwidth=0.5, relheight=0.2)
     #Orange car
-    btn_OrangeCar = tk.Button(top_tracking, text="Orange Car", bg="yellow", command=OrangeCar)
+    btn_OrangeCar = tk.Button(top_tracking, text="Orange Car", bg="Orange", command=OrangeCar)
     btn_OrangeCar['font'] = myFont2
     btn_OrangeCar.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
     #white car
@@ -447,8 +447,6 @@ def RedCar():
     while mode == "RedCar":
         imagingRed()
         move()
-        if mode=="standby":
-            break
     #leaving while loop
     
 def YellowCar():
@@ -457,8 +455,6 @@ def YellowCar():
     while mode == "YellowCar":
         imagingYellow()
         move()
-        if mode=="standby":
-            break
     #leaving while loop
 
     
@@ -468,8 +464,6 @@ def GreenCar():
     while mode == "GreenCar":
         imagingGreen()
         move()
-        if mode=="standby":
-            break
     #leaving while loop
     
 def BlueCar():
@@ -478,8 +472,6 @@ def BlueCar():
     while mode == "BlueCar":
         imagingBlue()
         move()
-        if mode=="standby":
-            break
     #leaving while loop
 
 def WhiteCar():
@@ -488,8 +480,6 @@ def WhiteCar():
     while mode == "WhiteCar":
         imagingWhite()
         move()
-        if mode=="standby":
-            break
     #leaving while loop
 
 def OrangeCar():
@@ -498,8 +488,6 @@ def OrangeCar():
     while mode == "OrangeCar":
         imagingOrange()
         move()
-        if mode=="standby":
-            break
     #leaving while loop
 
     
@@ -517,8 +505,6 @@ def surveyVegetation(event):
     while (mode=="surveyVegetation"):
         imagingVegetation()
         move()
-        if mode=="standby":
-            break
     mode="standby"
 
 def halt_tracking():
@@ -646,9 +632,6 @@ def surveyObjects(event):
         cv2.imshow("Image", img)
         cv2.waitKey(1)
         moveSurveyObjects()
-        if mode=="standby":
-            break
-        
     mode = "standby"
 
 def add_data():
