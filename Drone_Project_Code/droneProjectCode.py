@@ -671,7 +671,7 @@ btn_database.place(relx=0.5, rely=0, relwidth=0.5, relheight=0.2)
 btn_database.bind("<Button-1>",read_database)
 
 #Survey Veg Mode
-btn_surveyVeg = tk.Button(root, text="Survey Vegetation", bg="orange")
+btn_surveyVeg = tk.Button(root, text="Survey Vegetation", bg="green")
 btn_surveyVeg['font'] = myFont1
 btn_surveyVeg.place(relx=0, rely=0.3, relwidth=0.5, relheight=0.2)
 btn_surveyVeg.bind("<Button-1>",surveyVegetation)
